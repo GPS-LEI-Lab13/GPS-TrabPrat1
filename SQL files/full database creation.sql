@@ -1,4 +1,3 @@
--- change from main to other stuff to create more databases for the different servers to use
 drop database if exists gps;
 create database if not exists gps;
 use gps;
