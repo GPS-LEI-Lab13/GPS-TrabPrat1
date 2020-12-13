@@ -23,7 +23,7 @@ create table if not exists Channel (
     creator_id int not null,
     name varchar(64) not null unique,
 
-    foreign key (creator_id) references User(id) 
+    foreign key (creator_id) references User(id)  on delete cascade 
 );
 -- Channel_User ----------------------------------
 create table if not exists Channel_User (
