@@ -21,7 +21,7 @@ create table if not exists User (
 create table if not exists Channel (
     id int not null primary key auto_increment,
     creator_id int not null,
-    name varchar(25) not null unique,
+    name varchar(64) not null unique,
 
     foreign key (creator_id) references User(id) 
 );
