@@ -1,21 +1,22 @@
 package pt.isec;
 
+import java.sql.SQLException;
+
 public class Validator {
 
-    public boolean checkUsernameAvalability(User user){
-        return true;
+    private Validator() {
     }
 
-    public boolean checkChannelAvalability(Channel channel){
-
-        return true;
+    public static boolean checkUsernameAvailability(String name, Database db) throws SQLException {
+        return db.User.getByUsername(name) == null;
     }
 
-    public boolean checkPasswordMacthUsername(User user){
-        //TODO falta adiconar no DATABASE
-        return true;
+    public boolean checkChannelAvailability(String name, Database db) throws SQLException {
+        return db.Channel.getByName(name) == null;
     }
 
-
+    public boolean checkPasswordMatchUsername(User user,Database db) throws SQLException {
+        return db.User.doesPasswordMatchUsername(user.username,user.password);
+    }
 
 }

@@ -12,8 +12,7 @@ public class Main {
 						+ "useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC",
 				"userman",
 				"random secure password");
-		
-		
+
 		
 	}
 }

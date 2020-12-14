@@ -201,11 +201,19 @@ public class Database {
 		}
 		
 		public int getLastID() throws SQLException {
-			String select = "select max(id) as id from user ";
-			PreparedStatement statement = connection.prepareStatement(select);
+			String sql = "select max(id) as id from user ";
+			PreparedStatement statement = connection.prepareStatement(sql);
 			ResultSet result = statement.executeQuery();
 			if (!result.next()) return -1;
 			return result.getInt(1);
+		}
+		public boolean doesPasswordMatchUsername(String username, String password) throws SQLException {
+			String sql = "select password_hash from user where username = ? ";
+			PreparedStatement statement = connection.prepareStatement(sql);
+			statement.setString(1, username);
+			ResultSet result = statement.executeQuery();
+			if (!result.next()) return false;
+			return result.getString(1).equals(password);
 		}
 	}
 }
