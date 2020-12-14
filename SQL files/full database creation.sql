@@ -3,7 +3,7 @@ create database if not exists gps;
 use gps;
 
 drop user if exists 'userman';
-create user 'userman'@'%' identified by 'random secure paswword';
+create user 'userman'@'%' identified by 'random secure password';
 grant all privileges on gps.* to 'userman';
 
 drop table if exists Channel_User;
