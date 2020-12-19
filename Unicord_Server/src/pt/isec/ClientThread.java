@@ -3,6 +3,7 @@ package pt.isec;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.sql.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
@@ -90,9 +91,9 @@ public class ClientThread extends Thread {
 		sendCommand(Constants.SUCCESS, userChannels);
 	}
 	
-	private void protocolGetMessages(int channelId) throws IOException {
-		if (!isLoggedIn()) sendCommand(Constants.ERROR, null);
-
+	private void protocolGetMessages(int channelId) throws IOException, SQLException {
+		ArrayList<Message> messages = app.database.Message.getAll(channelId);
+		sendCommand(Constants.SUCCESS, messages);
 	}
 	
 	private void protocolNewMessage(Message message) throws SQLException, IOException {
@@ -127,17 +128,35 @@ public class ClientThread extends Thread {
 		app.sendToAll(Constants.NEW_MESSAGE, channel);
 	}
 	
-	private void protocolEditChannel(Command[] commands) {
+	private void protocolEditChannel(Command[] commands) throws SQLException, IOException {
 		for (var command : commands) {
 			switch (command.protocol) {
 				case Constants.ADD_CHANNEL_USER -> {
-				
+					int[] ids = (int[]) command.extras;
+					boolean added = app.database.Channel.addUser(ids[0], ids[1]);
+					if (added) {
+						sendCommand(Constants.SUCCESS, null);
+					} else {
+						sendCommand(Constants.ERROR, "Couldn't add user to channel!");
+					}
 				}
 				case Constants.REMOVE_CHANNEL_USER -> {
-				
+					int[] ids = (int[]) command.extras;
+					boolean removed = app.database.Channel.removeUser(ids[0], ids[1]);
+					if (removed) {
+						sendCommand(Constants.SUCCESS, null);
+					} else {
+						sendCommand(Constants.ERROR, "Couldn't remove user from channel!");
+					}
 				}
 				case Constants.EDIT_CHANNEL_NAME -> {
-				
+					Channel newChannel = (Channel) command.extras;
+					boolean edited = app.database.Channel.editChannel(newChannel);
+					if (edited) {
+						sendCommand(Constants.SUCCESS, null);
+					} else {
+						sendCommand(Constants.ERROR, "Couldn't edit channel!");
+					}
 				}
 				default -> System.out.println("syke, something went wrong!");
 			}
