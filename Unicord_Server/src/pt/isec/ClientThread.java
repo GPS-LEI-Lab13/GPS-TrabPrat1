@@ -57,7 +57,7 @@ public class ClientThread extends Thread {
 					case Constants.GET_MESSAGES -> protocolGetMessages((int) command.extras);
 					case Constants.NEW_MESSAGE -> protocolNewMessage((Message) command.extras);
 					case Constants.DOWNLOAD_MESSAGES -> protocolDownloadMessage((int) command.extras);
-					case Constants.EDIT_CHANNEL -> protocolEditChannel((Command[]) command.extras);
+					case Constants.EDIT_CHANNEL -> protocolEditChannel((ChannelEditor) command.extras);
 				}
 			}
 		}
@@ -94,12 +94,12 @@ public class ClientThread extends Thread {
 		sendCommand(Constants.SUCCESS, userChannels);
 	}
 	
-	private void protocolGetMessages(int channelId) throws IOException {
-		if (!isLoggedIn()) sendCommand(Constants.ERROR, null);
-		
+	private void protocolGetMessages(int channelId) throws IOException, SQLException {
+		ArrayList<Message> messages = app.database.Message.getAll(channelId);
+		sendCommand(Constants.SUCCESS, messages);
 	}
 	
-	private void protocolNewMessage(Message message) throws SQLException, IOException, InterruptedException {
+	private void protocolNewMessage(Message message) throws SQLException, IOException {
 		message.senderId = user.id;
 		message.channelId = currentChannel;
 		boolean success = app.database.Message.createMessage(message);
@@ -144,7 +144,7 @@ public class ClientThread extends Thread {
 		}
 	}
 	
-	private void protocolDownloadMessage(int messageId) throws IOException {
+	private void protocolDownloadMessage(int messageId) {
 		// Actually uploads
 		new Thread(() -> {
 			try {
@@ -187,39 +187,34 @@ public class ClientThread extends Thread {
 		app.sendToAll(Constants.NEW_MESSAGE, channel);
 	}
 	
-	private void protocolEditChannel(Command[] commands) throws IOException, SQLException {
-		for (var command : commands) {
-			switch (command.protocol) {
-				case Constants.ADD_CHANNEL_USER -> {
-					int[] ids = (int[]) command.extras;
-					boolean added = app.database.Channel.addUser(ids[0], ids[1]);
-					if (added) {
-						sendCommand(Constants.SUCCESS, null);
-					} else {
-						sendCommand(Constants.ERROR, "Couldn't add user to channel!");
-					}
-				}
-				case Constants.REMOVE_CHANNEL_USER -> {
-					int[] ids = (int[]) command.extras;
-					boolean removed = app.database.Channel.removeUser(ids[0], ids[1]);
-					if (removed) {
-						sendCommand(Constants.SUCCESS, null);
-					} else {
-						sendCommand(Constants.ERROR, "Couldn't remove user from channel!");
-					}
-				}
-				case Constants.EDIT_CHANNEL_NAME -> {
-					Channel newChannel = (Channel) command.extras;
-					boolean edited = app.database.Channel.editChannel(newChannel);
-					if (edited) {
-						sendCommand(Constants.SUCCESS, null);
-					} else {
-						sendCommand(Constants.ERROR, "Couldn't edit channel!");
-					}
-				}
-				default -> System.out.println("syke, something went wrong!");
+	private void protocolEditChannel(ChannelEditor channelChanges) throws IOException, SQLException {
+		var channel = app.database.Channel.getByID(channelChanges.channelId);
+		if (channel.creatorId != user.id) sendCommand(Constants.ERROR, "User is  not channel owner");
+		
+		channel.name = channelChanges.name;
+		
+		if (channelChanges.name != null) {
+			if (!app.database.Channel.editChannel(channel)) {
+				sendCommand(Constants.ERROR, "Name already in use");
+				return;
 			}
 		}
+		if (channelChanges.usersToAdd != null) {
+			for (var userId : channelChanges.usersToAdd) {
+				if (!app.database.Channel.addUser(userId, channel.id)) {
+					sendCommand(Constants.ERROR, "Something went wrong");
+				}
+			}
+		}
+		if (channelChanges.usersToRemove != null) {
+			for (var userId : channelChanges.usersToRemove) {
+				if (!app.database.Channel.removeUser(userId, channel.id)) {
+					sendCommand(Constants.ERROR, "Something went wrong");
+				}
+			}
+		}
+		sendCommand(Constants.SUCCESS, null);
+		app.sendToAll(Constants.EDIT_CHANNEL, channel);
 	}
 	
 	public void sendCommand(String protocol, Object extras) throws IOException {

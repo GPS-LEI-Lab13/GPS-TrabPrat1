@@ -18,9 +18,9 @@ public class Constants {
 	public static final String EDIT_CHANNEL = "EDIT_CHANNEL";
 	public static final String FILE_BLOCK = "FILE_BLOCK";
 	
-	public static final String ADD_CHANNEL_USER = "ADD_CHANNEL_USER";
-	public static final String REMOVE_CHANNEL_USER = "REMOVE_CHANNEL_USER";
-	public static final String EDIT_CHANNEL_NAME = "EDIT_CHANNEL_NAME";
+	//public static final String ADD_CHANNEL_USER = "ADD_CHANNEL_USER";
+	//public static final String REMOVE_CHANNEL_USER = "REMOVE_CHANNEL_USER";
+	//public static final String EDIT_CHANNEL_NAME = "EDIT_CHANNEL_NAME";
 	
 	public static final String SERVER_SHUTDOWN = "SERVER_SHUTDOWN";
 	

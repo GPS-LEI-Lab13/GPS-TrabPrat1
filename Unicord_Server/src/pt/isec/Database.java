@@ -140,6 +140,14 @@ public class Database {
 			return statement.executeUpdate() == 1;
 		}
 		
+		public Channel getByID(int id) throws SQLException {
+			String sql = "select id,creator_id,name from channel where id = ? ";
+			PreparedStatement statement = connection.prepareStatement(sql);
+			statement.setInt(1, id);
+			ArrayList<Channel> list = parse(statement.executeQuery());
+			return list.size() == 0 ? null : list.get(0);
+		}
+		
 		public Channel getByName(String name) throws SQLException {
 			String sql = "select id, creator_id, name from channel where name = ? ";
 			PreparedStatement statement = connection.prepareStatement(sql);
