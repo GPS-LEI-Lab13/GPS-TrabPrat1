@@ -14,31 +14,34 @@ import java.util.concurrent.BlockingQueue;
 public class ClientThread extends Thread {
 	
 	private final Socket socket;
-	private final ObjectOutputStream oos;
+	private ObjectOutputStream oos;
+	private MainReceiver receiver;
 	private final MainServer app;
-	private final MainReceiver receiver;
 	private User user = null;
 	private int currentChannel = -1;
 	
-	public ClientThread(Socket socket, MainServer mainServer) throws IOException {
+	public ClientThread(Socket socket, MainServer mainServer) {
 		this.socket = socket;
-		this.oos = new ObjectOutputStream(socket.getOutputStream());
 		this.app = mainServer;
-		this.receiver = new MainReceiver(socket);
 	}
 	
 	@Override
 	public void run() {
-		BlockingQueue<Command> queue = receiver.addListener();
+		BlockingQueue<Command> queue = null;
 		try {
+			this.oos = new ObjectOutputStream(socket.getOutputStream());
+			this.receiver = new MainReceiver(socket);
+			queue = receiver.addListener();
+			
 			while (true) {
 				Command command = queue.take();
 				handleCommand(command);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			if (queue != null) receiver.removeListener(queue);
+			app.clients.remove(this);
 		}
-		receiver.removeListener(queue);
 	}
 	
 	private void handleCommand(Command command) throws Exception {
@@ -203,6 +206,7 @@ public class ClientThread extends Thread {
 			for (var userId : channelChanges.usersToAdd) {
 				if (!app.database.Channel.addUser(userId, channel.id)) {
 					sendCommand(Constants.ERROR, "Something went wrong");
+					return;
 				}
 			}
 		}
@@ -210,6 +214,7 @@ public class ClientThread extends Thread {
 			for (var userId : channelChanges.usersToRemove) {
 				if (!app.database.Channel.removeUser(userId, channel.id)) {
 					sendCommand(Constants.ERROR, "Something went wrong");
+					return;
 				}
 			}
 		}
