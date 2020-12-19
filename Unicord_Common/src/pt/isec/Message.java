@@ -1,8 +1,15 @@
 package pt.isec;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class Message implements Serializable {
+	
+	@Serial
+	private static final long serialVersionUID = 8574382340L;
+	
+	public static final String TYPE_TEXT = "text";
+	public static final String TYPE_FILE = "file";
 	
 	public int id;
 	public int senderId;
