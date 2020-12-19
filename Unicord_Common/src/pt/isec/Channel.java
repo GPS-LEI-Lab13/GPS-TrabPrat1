@@ -1,6 +1,8 @@
 package pt.isec;
 
-public class Channel {
+import java.io.Serializable;
+
+public class Channel implements Serializable {
 	
 	public int id;
 	public int creatorId;

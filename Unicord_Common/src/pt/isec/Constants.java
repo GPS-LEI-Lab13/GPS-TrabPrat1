@@ -1,0 +1,18 @@
+package pt.isec;
+
+public class Constants {
+	
+	public static final String SUCCESS = "SUCCESS";
+	public static final String ERROR = "ERROR";
+	public static final String REGISTER = "REGISTER";
+	public static final String LOGIN = "LOGIN";
+	public static final String LOGOUT = "LOGOUT";
+	public static final String GET_CHANNELS = "GET_CHANNELS";
+	public static final String GET_MESSAGES = "GET_MESSAGES";
+	public static final String NEW_MESSAGE = "NEW_MESSAGE";
+	public static final String DOWNLOAD_MESSAGES = "DOWNLOAD_MESSAGE";
+	public static final String GET_USERS = "GET_USERS";
+	public static final String NEW_CHANNEL = "NEW_CHANNEL";
+	public static final String EDIT_CHANNEL = "EDIT_CHANNEL";
+	
+}

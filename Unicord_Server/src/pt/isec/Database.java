@@ -17,12 +17,14 @@ public class Database {
 		User = new Users();
 	}
 	
-	protected class Messages {
-		public ArrayList<Message> getAll() throws SQLException {
+	public class Messages {
+		public ArrayList<Message> getAll(int channelId) throws SQLException {
 			String sql = "select id,sender_id,channel_id,moment_sent,type,content, " +
 					"(select username from user where sender_id = id) as sender_username " +
-					"from message ";
+					"from message " +
+					"where channel_id = ? ";
 			PreparedStatement statement = connection.prepareStatement(sql);
+			statement.setInt(1, channelId);
 			return parse(statement.executeQuery());
 		}
 		
@@ -71,7 +73,7 @@ public class Database {
 		}
 	}
 	
-	protected class Channels {
+	public class Channels {
 		public ArrayList<Channel> getAll() throws SQLException {
 			String sql = "select id,creator_id,name " +
 					"from channel ";
@@ -153,7 +155,7 @@ public class Database {
 		
 	}
 	
-	protected class Users {
+	public class Users {
 		public ArrayList<User> getAll() throws SQLException {
 			String sql = "select id, username from user where id = ? ";
 			PreparedStatement statement = connection.prepareStatement(sql);
@@ -207,6 +209,7 @@ public class Database {
 			if (!result.next()) return -1;
 			return result.getInt(1);
 		}
+		
 		public boolean doesPasswordMatchUsername(String username, String password) throws SQLException {
 			String sql = "select password_hash from user where username = ? ";
 			PreparedStatement statement = connection.prepareStatement(sql);
