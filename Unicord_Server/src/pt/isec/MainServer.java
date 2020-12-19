@@ -8,9 +8,9 @@ import java.util.List;
 
 public class MainServer extends Thread {
 	
-	final private ServerSocket serverSocket;
-	final private List<ClientThread> clients;
-	final Database database;
+	private final ServerSocket serverSocket;
+	public final List<ClientThread> clients;
+	public final Database database;
 	
 	private static MainServer instance;
 	
@@ -33,10 +33,12 @@ public class MainServer extends Thread {
 	public void run() {
 		System.out.println("Server Running");
 		try {
-			Socket socket = serverSocket.accept();
-			ClientThread client = new ClientThread(socket, this);
-			client.start();
-			clients.add(client);
+			while (true) {
+				Socket socket = serverSocket.accept();
+				ClientThread client = new ClientThread(socket, this);
+				client.start();
+				clients.add(client);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
