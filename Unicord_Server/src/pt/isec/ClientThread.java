@@ -41,13 +41,21 @@ public class ClientThread extends Thread {
 		switch (command.protocol) {
 			case Constants.REGISTER -> protocolRegister((User) command.extras);
 			case Constants.LOGIN -> protocolLogin((User) command.extras);
-			case Constants.LOGOUT -> protocolLogout();
-			case Constants.GET_CHANNELS -> protocolGetChannels();
-			case Constants.NEW_CHANNEL -> protocolNewChannel((Channel) command.extras);
-			case Constants.GET_MESSAGES -> protocolGetMessages((int) command.extras);
-			case Constants.NEW_MESSAGE -> protocolNewMessage((Message) command.extras);
-			case Constants.DOWNLOAD_MESSAGES -> protocolDownloadMessage((Message) command.extras);
-			case Constants.EDIT_CHANNEL -> protocolEditChannel((Command[]) command.extras);
+			default -> {
+				if (!isLoggedIn()) {
+					sendCommand(Constants.ERROR, "User is not logged in");
+					break;
+				}
+				switch (command.protocol) {
+					case Constants.LOGOUT -> protocolLogout();
+					case Constants.GET_CHANNELS -> protocolGetChannels();
+					case Constants.NEW_CHANNEL -> protocolNewChannel((Channel) command.extras);
+					case Constants.GET_MESSAGES -> protocolGetMessages((int) command.extras);
+					case Constants.NEW_MESSAGE -> protocolNewMessage((Message) command.extras);
+					case Constants.DOWNLOAD_MESSAGES -> protocolDownloadMessage((Message) command.extras);
+					case Constants.EDIT_CHANNEL -> protocolEditChannel((Command[]) command.extras);
+				}
+			}
 		}
 	}
 	
@@ -87,8 +95,15 @@ public class ClientThread extends Thread {
 
 	}
 	
-	private void protocolNewMessage(Message message) {
-	
+	private void protocolNewMessage(Message message) throws SQLException, IOException {
+		message.senderId = user.id;
+		message.channelId = currentChannel;
+		boolean success = app.database.Message.createMessage(message);
+		if (!success) {
+			sendCommand(Constants.ERROR, "Server Error");
+		}
+		//sendCommand(Constants.SUCCESS, null);  // maybe there is no need
+		app.sendToAll(Constants.NEW_MESSAGE, message);
 	}
 	
 	private void protocolDownloadMessage(Message message) throws InterruptedException {
@@ -102,8 +117,14 @@ public class ClientThread extends Thread {
 		*/
 	}
 	
-	private void protocolNewChannel(Channel channel) {
-	
+	private void protocolNewChannel(Channel channel) throws SQLException, IOException {
+		channel.creatorId = user.id;
+		boolean success = app.database.Channel.createChannel(channel);
+		if (!success) {
+			sendCommand(Constants.ERROR, "Server Error");
+		}
+		sendCommand(Constants.SUCCESS, null);
+		app.sendToAll(Constants.NEW_MESSAGE, channel);
 	}
 	
 	private void protocolEditChannel(Command[] commands) {
