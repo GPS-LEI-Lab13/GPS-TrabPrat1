@@ -11,11 +11,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class MainReceiver extends Thread {
 	
-	Socket socket;
-	ObjectInputStream ois;
-	List<BlockingQueue<Command>> list;
+	private Socket socket;
+	private ObjectInputStream ois;
+	private List<BlockingQueue<Command>> list;
 	
-	MainReceiver(Socket socket) throws IOException {
+	public MainReceiver(Socket socket) throws IOException {
 		this.socket = socket;
 		this.ois = new ObjectInputStream(socket.getInputStream());
 		this.list = Collections.synchronizedList(new ArrayList<>());
@@ -39,13 +39,13 @@ public class MainReceiver extends Thread {
 		}
 	}
 	
-	BlockingQueue<Command> addListener() {
+	public BlockingQueue<Command> addListener() {
 		BlockingQueue<Command> queue = new LinkedBlockingQueue<>();
 		list.add(queue);
 		return queue;
 	}
-	
-	boolean removeListener(BlockingQueue<Command> queue) {
+
+	public boolean removeListener(BlockingQueue<Command> queue) {
 		return list.remove(queue);
 	}
 }
