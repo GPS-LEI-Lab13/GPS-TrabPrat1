@@ -187,17 +187,35 @@ public class ClientThread extends Thread {
 		app.sendToAll(Constants.NEW_MESSAGE, channel);
 	}
 	
-	private void protocolEditChannel(Command[] commands) {
+	private void protocolEditChannel(Command[] commands) throws IOException, SQLException {
 		for (var command : commands) {
 			switch (command.protocol) {
 				case Constants.ADD_CHANNEL_USER -> {
-				
+					int[] ids = (int[]) command.extras;
+					boolean added = app.database.Channel.addUser(ids[0], ids[1]);
+					if (added) {
+						sendCommand(Constants.SUCCESS, null);
+					} else {
+						sendCommand(Constants.ERROR, "Couldn't add user to channel!");
+					}
 				}
 				case Constants.REMOVE_CHANNEL_USER -> {
-				
+					int[] ids = (int[]) command.extras;
+					boolean removed = app.database.Channel.removeUser(ids[0], ids[1]);
+					if (removed) {
+						sendCommand(Constants.SUCCESS, null);
+					} else {
+						sendCommand(Constants.ERROR, "Couldn't remove user from channel!");
+					}
 				}
 				case Constants.EDIT_CHANNEL_NAME -> {
-				
+					Channel newChannel = (Channel) command.extras;
+					boolean edited = app.database.Channel.editChannel(newChannel);
+					if (edited) {
+						sendCommand(Constants.SUCCESS, null);
+					} else {
+						sendCommand(Constants.ERROR, "Couldn't edit channel!");
+					}
 				}
 				default -> System.out.println("syke, something went wrong!");
 			}
