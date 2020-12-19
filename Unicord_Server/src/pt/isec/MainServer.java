@@ -31,6 +31,7 @@ public class MainServer extends Thread {
 	
 	@Override
 	public void run() {
+		System.out.println("Server Running");
 		try {
 			Socket socket = serverSocket.accept();
 			ClientThread client = new ClientThread(socket, this);
