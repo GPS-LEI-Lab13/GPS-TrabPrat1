@@ -7,6 +7,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.BlockingQueue;
 
 public class ClientThread extends Thread {
@@ -143,32 +145,35 @@ public class ClientThread extends Thread {
 	}
 	
 	private void protocolDownloadMessage(int messageId) throws IOException {
+		// Actually uploads
 		new Thread(() -> {
 			try {
 				Message message = app.database.Message.getByID(messageId);
-				if(message == null)
+				if (message == null) sendCommand(Constants.ERROR, "Message does not exist");
 				
-				//FileInputStream fis = new FileInputStream(Constants.getFile(message.content));
-				//FileBlock fileBlock = new FileBlock("DOWNLOAD_" + messageId)
+				FileInputStream fis = new FileInputStream(Constants.getFile(message.content));
+				FileBlock fileBlock = new FileBlock("DOWNLOAD_" + messageId);
+				var bytes = fileBlock.bytes;
 				
 				while (true) {
-				
-					break;
+					int readAmount = fis.read(bytes);
+					if (readAmount <= 0) {
+						fileBlock.bytes = new byte[0];
+						sendCommand(Constants.DOWNLOAD_MESSAGES, fileBlock);
+						fis.close();
+						break;
+					}
+					if (readAmount < fileBlock.bytes.length) {
+						fileBlock.bytes = Arrays.copyOfRange(bytes, 0, readAmount);
+					}
+					sendCommand(Constants.DOWNLOAD_MESSAGES, fileBlock);
+					fileBlock.bytes = bytes;
 				}
 				app.sendToAll(Constants.NEW_MESSAGE, message);
-				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}).start();
-		
-		/*BlockingQueue<Command> commands = receiver.addListener();
-		while (true) {
-			Command command = commands.take();
-			//do stuff with it
-			//if(command.protocol.equals())
-		}*/
-		
 	}
 	
 	private void protocolNewChannel(Channel channel) throws SQLException, IOException {
@@ -201,7 +206,7 @@ public class ClientThread extends Thread {
 	
 	public void sendCommand(String protocol, Object extras) throws IOException {
 		Command obj = new Command(protocol, extras);
-		oos.writeObject(obj);
+		oos.writeUnshared(obj);
 		System.out.println(obj);
 	}
 	

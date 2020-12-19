@@ -24,6 +24,8 @@ public class Constants {
 	
 	public static final String SERVER_SHUTDOWN = "SERVER_SHUTDOWN";
 	
+	public static final int BUFFER_SIZE = 100 * 1024;
+	
 	
 	public static File getFile(String fileName) {
 		File file = new File("files" + File.separator + fileName);

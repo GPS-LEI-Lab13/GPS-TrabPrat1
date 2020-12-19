@@ -8,14 +8,13 @@ public class FileBlock implements Serializable {
 	@Serial
 	private static final long serialVersionUID = 50348927L;
 	
-	String identifier;
-	int offset;
-	byte[] bytes;
+	public final String identifier;
+	public int offset;
+	public byte[] bytes;
 	
-	public FileBlock(String identifier, int offset, byte[] bytes) {
+	public FileBlock(String identifier) {
 		this.identifier = identifier;
-		this.offset = offset;
-		this.bytes = bytes;
+		this.bytes = new byte[Constants.BUFFER_SIZE];
 	}
 	
 }
