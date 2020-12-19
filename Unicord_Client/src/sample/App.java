@@ -28,12 +28,11 @@ public class App extends Application {
     public App(String serverAddress, int port) throws IOException {
         socket = new Socket(serverAddress,port);
         mainReceiver = new MainReceiver(socket);
+        launch(null);
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
-
 
         mainStage = primaryStage;
         primaryStage.setTitle("Unicord");
@@ -42,26 +41,6 @@ public class App extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
     }
-
-    public static void main(String[] args) {
-
-        if (args.length != 2) {
-            System.out.println("Invalid arguments: server_address, server_UDP_port");
-            return;
-        }
-        String serverAddress = args[0];
-        int port = Integer.parseInt(args[1]);
-
-        try {
-            App app = new App(serverAddress,port);
-            launch(args);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
 
 
     private Parent loadFxml(String fxml) throws IOException {
