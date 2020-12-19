@@ -1,8 +1,12 @@
 package pt.isec;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class Channel implements Serializable {
+	
+	@Serial
+	private static final long serialVersionUID = 4278929534L;
 	
 	public int id;
 	public int creatorId;

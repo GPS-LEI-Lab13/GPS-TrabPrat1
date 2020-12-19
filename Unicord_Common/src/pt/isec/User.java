@@ -1,8 +1,12 @@
 package pt.isec;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class User implements Serializable {
+	
+	@Serial
+	private static final long serialVersionUID = 12346789L;
 	
 	public int id;
 	public String username;

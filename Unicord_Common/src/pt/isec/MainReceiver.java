@@ -33,8 +33,8 @@ public class MainReceiver extends Thread {
 				continue;
 			}
 			
-			for (var listener : list) {
-				listener.offer(command);
+			for (var queue : list) {
+				queue.offer(command);
 			}
 		}
 	}

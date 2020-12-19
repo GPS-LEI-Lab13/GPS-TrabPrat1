@@ -45,6 +45,7 @@ public class Database {
 		public boolean createMessage(Message message) throws SQLException {
 			String sql = "insert into message(id, sender_id, channel_id, type, content) values(?, ?, ?, ?, ?) ";
 			PreparedStatement statement = connection.prepareStatement(sql);
+			message.id = getLastID() + 1;
 			statement.setInt(1, message.id);
 			statement.setInt(2, message.senderId);
 			statement.setInt(3, message.channelId);
@@ -101,6 +102,7 @@ public class Database {
 		public boolean createChannel(Channel channel) throws SQLException {
 			String sql = "insert into channel(id, creator_id, name) values(?, ?, ?) ";
 			PreparedStatement statement = connection.prepareStatement(sql);
+			channel.id = getLastID() + 1;
 			statement.setInt(1, channel.id);
 			statement.setInt(2, channel.creatorId);
 			statement.setString(3, channel.name);
@@ -173,6 +175,7 @@ public class Database {
 		public boolean createUser(User user) throws SQLException {
 			String sql = "insert into user(id, username, password_hash) values(?, ?, ?) ";
 			PreparedStatement statement = connection.prepareStatement(sql);
+			user.id = getLastID() + 1;
 			statement.setInt(1, user.id);
 			statement.setString(2, user.username);
 			statement.setString(3, user.password);

@@ -1,5 +1,7 @@
 package pt.isec;
 
+import java.io.File;
+
 public class Constants {
 	
 	public static final String SUCCESS = "SUCCESS";
@@ -14,10 +16,18 @@ public class Constants {
 	public static final String GET_USERS = "GET_USERS";
 	public static final String NEW_CHANNEL = "NEW_CHANNEL";
 	public static final String EDIT_CHANNEL = "EDIT_CHANNEL";
+	public static final String FILE_BLOCK = "FILE_BLOCK";
 	
 	public static final String ADD_CHANNEL_USER = "ADD_CHANNEL_USER";
 	public static final String REMOVE_CHANNEL_USER = "REMOVE_CHANNEL_USER";
 	public static final String EDIT_CHANNEL_NAME = "EDIT_CHANNEL_NAME";
 	
 	public static final String SERVER_SHUTDOWN = "SERVER_SHUTDOWN";
+	
+	
+	public static File getFile(String fileName) {
+		File file = new File("files" + File.separator + fileName);
+		Utils.createFileDirectories(file);
+		return file;
+	}
 }
