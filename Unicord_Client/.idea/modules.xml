@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Unicord_Client.iml" filepath="$PROJECT_DIR$/Unicord_Client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Unicord_Common/Unicord_Common.iml" filepath="$PROJECT_DIR$/../Unicord_Common/Unicord_Common.iml" />
     </modules>
   </component>
 </project>
