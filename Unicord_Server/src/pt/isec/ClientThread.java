@@ -22,8 +22,7 @@ public class ClientThread extends Thread {
 		this.app = mainServer;
 		this.receiver = new MainReceiver(socket);
 	}
-	
-	
+
 	@Override
 	public void run() {
 		try {
@@ -52,8 +51,14 @@ public class ClientThread extends Thread {
 		}
 	}
 	
-	private void protocolRegister(User user) {
-	
+	private void protocolRegister(User user) throws IOException, SQLException {
+		// Colocar na base de dados o user
+		// Enviar success ou error
+		if (app.database.User.createUser(user)) {
+			sendCommand(Constants.SUCCESS, null);
+		} else {
+			sendCommand(Constants.ERROR, "Register failed!");
+		}
 	}
 	
 	private void protocolLogin(User user) throws SQLException, IOException {
@@ -66,8 +71,9 @@ public class ClientThread extends Thread {
 		sendCommand(Constants.SUCCESS, null);
 	}
 	
-	private void protocolLogout() {
-	
+	private void protocolLogout() throws IOException {
+		this.user = null;
+		sendCommand(Constants.SUCCESS, null);
 	}
 	
 	private void protocolGetChannels() throws SQLException, IOException {
@@ -76,8 +82,9 @@ public class ClientThread extends Thread {
 		sendCommand(Constants.SUCCESS, userChannels);
 	}
 	
-	private void protocolGetMessages(int channelId) {
-	
+	private void protocolGetMessages(int channelId) throws IOException {
+		if (!isLoggedIn()) sendCommand(Constants.ERROR, null);
+
 	}
 	
 	private void protocolNewMessage(Message message) {
