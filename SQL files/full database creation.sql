@@ -11,10 +11,10 @@ drop table if exists Message;
 drop table if exists Channel;
 drop table if exists User;
 
--- User ----------------------------------
+-- User -------------------------------------
 create table if not exists User (
 	id  int not null primary key auto_increment,
-	username varchar(25) not null unique key,
+	username varchar(25) not null unique,
 	password_hash char(64) not null
 );
 -- Channel ----------------------------------
@@ -25,7 +25,7 @@ create table if not exists Channel (
 
     foreign key (creator_id) references User(id)  on delete cascade 
 );
--- Channel_User ----------------------------------
+-- Channel_User ------------------------------
 create table if not exists Channel_User (
 	channel_id int not null,
     user_id int not null,
@@ -46,3 +46,6 @@ create table if not exists Message (
     foreign key (sender_id) references User(id),
     foreign key (channel_id) references Channel(id)
 );
+-- Setup -----------------------------------
+insert into User(id,username,password_hash) values(1,'Admin','3fw42nemv0hxxa98e8rn32syomxixtp9259v0mebmrmi91evfb');
+insert into Channel(id,creator_id,name) values(1,1,'General');

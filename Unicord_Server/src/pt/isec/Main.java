@@ -7,16 +7,20 @@ public class Main {
 		
 		if(args.length < 1){
 			System.out.println("Invalid arguments: databaseAddress");
+			System.exit(-1);
 		}
 		
 		String databaseAddress = args[0];
 		
-		Database db = new Database(
+		Database database = new Database(
 				"jdbc:mysql://" + databaseAddress + ":3306/gps?allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false&"
 						+ "useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC",
 				"userman",
 				"random secure password");
 
+		
+		MainServer server = new MainServer(database,5432);
+		server.start();
 		
 	}
 }
