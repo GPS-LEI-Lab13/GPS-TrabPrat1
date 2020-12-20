@@ -5,9 +5,15 @@ import java.util.regex.Pattern;
 
 public class Validator {
 
-    public boolean checkUserPasswordRules(String password){
-        Pattern pattern = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{8,25}$");
+    private Validator(){}
+
+    public static boolean checkUserPasswordRules(String password){
+        Pattern pattern = Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$#!?/|&\\\\%()]).{8,25}$");
         Matcher matcher = pattern.matcher(password);
         return matcher.find();
+    }
+
+    public static boolean checkUsernameRules(String username){
+        return username.length() >= 6 && username.length() <= 25;
     }
 }
