@@ -1,4 +1,4 @@
-package sample;
+package pt.isec;
 
 public class Login {
 }

@@ -1,4 +1,4 @@
-package sample;
+package pt.isec;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -36,7 +36,7 @@ public class App extends Application {
 
         mainStage = primaryStage;
         primaryStage.setTitle("Unicord");
-        Parent root = loadFxml("Login.fxml");
+        Parent root = loadFxml("Login.sample.fxml");
         scene = new Scene(root, 600, 460);
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -50,10 +50,9 @@ public class App extends Application {
     public void setWindowRoot(String fxml) throws IOException {
         scene.setRoot(loadFxml(fxml));
     }
-    public BlockingQueue getReceivedObjectQueue(){
+    public BlockingQueue<Command> getReceivedObjectQueue(){
         //TODO NEED CLERIFICATION HOW TO DO THIS
-
-        return null;
+        return mainReceiver.addListener();
     }
     void sendCommand(String protocol,Object obj){
 

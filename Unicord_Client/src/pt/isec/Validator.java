@@ -1,4 +1,4 @@
-package sample;
+package pt.isec;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
