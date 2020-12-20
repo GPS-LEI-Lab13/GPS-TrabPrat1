@@ -110,4 +110,8 @@ public class App extends Application {
 
         alert.showAndWait();
     }
+
+    public User getUser() {
+        return this.user;
+    }
 }
