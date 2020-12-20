@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -33,7 +34,7 @@
                   <Insets right="20.0" />
                </HBox.margin>
             </Text>
-            <TextField fx:id="passwordTextFIeld" />
+            <PasswordField fx:id="passwordTextFIeld" />
          </children>
       </HBox>
       <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0">
@@ -46,7 +47,7 @@
                   <Insets right="20.0" />
                </HBox.margin>
             </Text>
-            <TextField fx:id="confirmPasswordTextField" />
+            <PasswordField fx:id="confirmPasswordTextField" />
          </children>
       </HBox>
       <HBox alignment="TOP_CENTER" prefHeight="100.0" prefWidth="200.0">
