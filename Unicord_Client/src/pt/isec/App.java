@@ -26,21 +26,21 @@ public class App extends Application {
 
     private Stage mainStage;
     private Scene scene;
-
+    public static String serverAddress;
     private static App instance;
 
     public static App getApp() {
         return instance;
     }
 
-    public void initialize(String serverAddress) throws IOException {
-        socket = new Socket(serverAddress,Constants.SERVER_PORT);
+    public void initialize() throws IOException {
+        socket = new Socket(serverAddress, Constants.SERVER_PORT);
         oOS = new ObjectOutputStream(socket.getOutputStream());
         mainReceiver = new MainReceiver(socket);
     }
 
 
-    public App(){
+    public App() {
     }
 
     @Override
@@ -48,6 +48,10 @@ public class App extends Application {
 
         instance = this;
         mainStage = primaryStage;
+
+        initialize();
+        System.out.println("Connection Successful");
+
         primaryStage.setTitle("Unicord");
         Parent root = loadFxml("fxml/Login.fxml");
         scene = new Scene(root, 600, 460);
@@ -64,10 +68,8 @@ public class App extends Application {
         String serverAddress = args[0];
         try {
             System.out.println("Trying to connect");
+            App.serverAddress = serverAddress;
             launch();
-            getApp().initialize(serverAddress);
-            System.out.println("Connection Successful");
-
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,29 +83,33 @@ public class App extends Application {
     }
 
     public void setWindowRoot(String fxml) throws IOException {
-        scene.setRoot(loadFxml(fxml));
+        scene.setRoot(loadFxml("fxml/" + fxml));
     }
-    public BlockingQueue<Command> getReceivedObjectQueue(){
+
+    public BlockingQueue<Command> getReceivedObjectQueue() {
         //TODO NEED CLERIFICATION HOW TO DO THIS
         return mainReceiver.addListener();
     }
-    public void sendCommand(String protocol,Object obj) throws IOException {
-        oOS.writeObject(new Command(protocol,obj));
+
+    public void sendCommand(String protocol, Object obj) throws IOException {
+        Command command = new Command(protocol, obj);
+        System.out.println("Sent: " + command);
+        oOS.writeUnshared(command);
     }
 
     public List<Channel> getChannels() {
         return channels;
     }
 
-    public void downloadFile(){
+    public void downloadFile() {
 
     }
 
-    public void uploadFile(){
+    public void uploadFile() {
 
     }
 
-    public void openMessageDialog(Alert.AlertType type, String title, String message){
+    public void openMessageDialog(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(message);
