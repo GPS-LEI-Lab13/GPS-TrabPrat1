@@ -22,4 +22,13 @@ public class Channel implements Serializable {
 		this.creatorId = creatorId;
 		this.name = name;
 	}
+	
+	@Override
+	public String toString() {
+		return "Channel{" +
+				"id=" + id +
+				", creatorId=" + creatorId +
+				", name='" + name + '\'' +
+				'}';
+	}
 }

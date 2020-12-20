@@ -2,6 +2,7 @@ package pt.isec;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class FileBlock implements Serializable {
 	
@@ -17,4 +18,12 @@ public class FileBlock implements Serializable {
 		this.bytes = new byte[Constants.BUFFER_SIZE];
 	}
 	
+	@Override
+	public String toString() {
+		return "FileBlock{" +
+				"identifier='" + identifier + '\'' +
+				", offset=" + offset +
+				", bytes.length=" + bytes.length +
+				'}';
+	}
 }

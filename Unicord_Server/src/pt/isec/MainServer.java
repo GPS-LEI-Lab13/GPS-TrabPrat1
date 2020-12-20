@@ -35,6 +35,7 @@ public class MainServer extends Thread {
 		try {
 			while (true) {
 				Socket socket = serverSocket.accept();
+				System.out.println("Accepted new Client");
 				ClientThread client = new ClientThread(socket, this);
 				client.start();
 				clients.add(client);

@@ -229,7 +229,9 @@ public class ClientThread extends Thread {
 	public void sendCommand(String protocol, Object extras) throws IOException {
 		Command obj = new Command(protocol, extras);
 		oos.writeUnshared(obj);
-		System.out.println(obj);
+		if (!(extras instanceof FileBlock)) {
+			System.out.println(obj);
+		}
 	}
 	
 	private boolean isLoggedIn() {

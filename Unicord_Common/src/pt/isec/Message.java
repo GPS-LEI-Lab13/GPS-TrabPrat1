@@ -35,4 +35,17 @@ public class Message implements Serializable {
 		this.date = date;
 		this.senderUsername = senderUsername;
 	}
+	
+	@Override
+	public String toString() {
+		return "Message{" +
+				"id=" + id +
+				", senderId=" + senderId +
+				", channelId=" + channelId +
+				", date=" + date +
+				", type='" + type + '\'' +
+				", content='" + content + '\'' +
+				", senderUsername='" + senderUsername + '\'' +
+				'}';
+	}
 }

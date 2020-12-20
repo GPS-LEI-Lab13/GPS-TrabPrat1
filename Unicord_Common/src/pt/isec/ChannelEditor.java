@@ -12,4 +12,14 @@ public class ChannelEditor {
 	public ChannelEditor(int channelId) {
 		this.channelId = channelId;
 	}
+	
+	@Override
+	public String toString() {
+		return "ChannelEditor{" +
+				"channelId=" + channelId +
+				", name='" + name + '\'' +
+				", usersToAdd=" + usersToAdd +
+				", usersToRemove=" + usersToRemove +
+				'}';
+	}
 }

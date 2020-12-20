@@ -16,4 +16,12 @@ public class Command implements Serializable {
 		this.protocol = protocol;
 		this.extras = null;
 	}
+	
+	@Override
+	public String toString() {
+		return "Command{" +
+				"protocol='" + protocol + '\'' +
+				", extras=" + extras +
+				'}';
+	}
 }
