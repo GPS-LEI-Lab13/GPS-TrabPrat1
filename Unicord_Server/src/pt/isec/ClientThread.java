@@ -100,32 +100,32 @@ public class ClientThread extends Thread {
 	private void protocolGetMessages(int channelId) throws IOException, SQLException {
 		ArrayList<Message> messages = app.database.Message.getAll(channelId);
 		sendCommand(Constants.SUCCESS, messages);
+		currentChannel = channelId;
 	}
 	
 	private void protocolNewMessage(Message message) throws SQLException, IOException {
 		message.senderId = user.id;
 		message.channelId = currentChannel;
+		
 		boolean success = app.database.Message.createMessage(message);
 		if (!success) {
 			sendCommand(Constants.ERROR, "Server Error");
 			return;
 		}
 		if (message.type.equals(Message.TYPE_FILE)) {
+			message.content = Utils.addTimestampFileName(message.content);
 			BlockingQueue<Command> commandQueue = receiver.addListener();
 			sendCommand(Constants.SUCCESS, null);
-			message.content = Utils.addTimestampFileName(message.content);
-			
 			new Thread(() -> {
 				try {
 					FileOutputStream fos = new FileOutputStream(Constants.getFile(message.content));
-					
 					while (true) {
 						Command command = commandQueue.take();
 						
 						if (command.protocol.equals(Constants.FILE_BLOCK) && command.extras instanceof FileBlock) {
 							FileBlock fileBlock = (FileBlock) command.extras;
-							
-							if (fileBlock.identifier.equals("UPLOAD_" + message.id)) { //  <---- TODO check this shit out
+							// This is upload from the client to the server
+							if (fileBlock.identifier.equals(Constants.UPLOAD_IDENTIFIER + message.id)) { //  <---- TODO check this shit out
 								
 								if (fileBlock.bytes.length == 0) {
 									fos.close();
@@ -136,11 +136,11 @@ public class ClientThread extends Thread {
 						}
 					}
 					app.sendToAll(Constants.NEW_MESSAGE, message);
-					receiver.removeListener(commandQueue);
-					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+				
+				receiver.removeListener(commandQueue);
 			}).start();
 		} else {
 			app.sendToAll(Constants.NEW_MESSAGE, message);
@@ -152,10 +152,14 @@ public class ClientThread extends Thread {
 		new Thread(() -> {
 			try {
 				Message message = app.database.Message.getByID(messageId);
-				if (message == null) sendCommand(Constants.ERROR, "Message does not exist");
+				if (message == null) {
+					sendCommand(Constants.ERROR, "Message does not exist");
+					return;
+				}
 				
 				FileInputStream fis = new FileInputStream(Constants.getFile(message.content));
-				FileBlock fileBlock = new FileBlock("DOWNLOAD_" + messageId);
+				// This is download from the client to the server
+				FileBlock fileBlock = new FileBlock(Constants.DOWNLOAD_IDENTIFIER + messageId);
 				var bytes = fileBlock.bytes;
 				
 				while (true) {

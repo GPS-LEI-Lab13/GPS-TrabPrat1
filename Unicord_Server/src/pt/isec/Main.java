@@ -19,7 +19,7 @@ public class Main {
 				"random secure password");
 
 		
-		MainServer server = new MainServer(database,5432);
+		MainServer server = new MainServer(database,Constants.SERVER_PORT);
 		server.start();
 		
 	}
