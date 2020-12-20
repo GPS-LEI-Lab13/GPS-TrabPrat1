@@ -11,6 +11,7 @@ import pt.isec.MainReceiver;
 import pt.isec.User;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.List;
@@ -18,28 +19,60 @@ import java.util.concurrent.BlockingQueue;
 
 public class App extends Application {
     private Socket socket;
-    private final MainReceiver mainReceiver;
+    private ObjectOutputStream oOS;
+    private MainReceiver mainReceiver;
     private User user;
     private List<Channel> channels;
 
     private Stage mainStage;
     private Scene scene;
 
-    public App(String serverAddress, int port) throws IOException {
-        socket = new Socket(serverAddress,port);
+    private static App instance;
+
+    public static App getApp() {
+        return instance;
+    }
+
+    public void initialize(String serverAddress) throws IOException {
+        socket = new Socket(serverAddress,Constants.SERVER_PORT);
+        oOS = new ObjectOutputStream(socket.getOutputStream());
         mainReceiver = new MainReceiver(socket);
-        launch(null);
+    }
+
+
+    public App(){
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
 
+        instance = this;
         mainStage = primaryStage;
         primaryStage.setTitle("Unicord");
-        Parent root = loadFxml("Login.sample.fxml");
+        Parent root = loadFxml("fxml/Login.fxml");
         scene = new Scene(root, 600, 460);
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Invalid arguments: server_address");
+            return;
+        }
+        String serverAddress = args[0];
+        try {
+            System.out.println("Trying to connect");
+            launch();
+            getApp().initialize(serverAddress);
+            System.out.println("Connection Successful");
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -54,23 +87,23 @@ public class App extends Application {
         //TODO NEED CLERIFICATION HOW TO DO THIS
         return mainReceiver.addListener();
     }
-    void sendCommand(String protocol,Object obj){
-
+    public void sendCommand(String protocol,Object obj) throws IOException {
+        oOS.writeObject(new Command(protocol,obj));
     }
 
     public List<Channel> getChannels() {
         return channels;
     }
 
-    void downloadFile(){
+    public void downloadFile(){
 
     }
 
-    void uploadFile(){
+    public void uploadFile(){
 
     }
 
-    void openMessageDialog(Alert.AlertType type, String title, String message){
+    public void openMessageDialog(Alert.AlertType type, String title, String message){
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(message);
