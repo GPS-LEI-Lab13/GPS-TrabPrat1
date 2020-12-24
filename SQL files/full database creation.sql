@@ -35,17 +35,18 @@ create table if not exists Channel_User (
 	foreign key (user_id) references User(id) on delete cascade
 );
 -- Message ----------------------------------
-create table if not exists Message (
-	id int not null primary key,
-    sender_id int not null,
-    channel_id int not null,
-    moment_sent datetime not null default current_timestamp,
-    type enum( 'text' , 'file' ) not null,
-    content varchar(512) not null,
-    
-    foreign key (sender_id) references User(id),
-    foreign key (channel_id) references Channel(id)
+CREATE TABLE IF NOT EXISTS Message (
+    id INT NOT NULL PRIMARY KEY,
+    sender_id INT NOT NULL,
+    channel_id INT NOT NULL,
+    moment_sent DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    type ENUM('text', 'file') NOT NULL,
+    content VARCHAR(512) NOT NULL,
+    FOREIGN KEY (sender_id)
+        REFERENCES User (id),
+    FOREIGN KEY (channel_id)
+        REFERENCES Channel (id)
 );
 -- Setup -----------------------------------
-insert into User(id,username,password_hash) values(1,'Admin','3fw42nemv0hxxa98e8rn32syomxixtp9259v0mebmrmi91evfb');
+insert into User(id,username,password_hash) values(1,'Admin','3fw42nemv0hxxa98e8rn32syomxixtp9259v0mebmrmi91evfbuser');
 insert into Channel(id,creator_id,name) values(1,1,'General');

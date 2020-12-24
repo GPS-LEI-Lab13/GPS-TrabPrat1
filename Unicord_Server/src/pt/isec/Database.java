@@ -172,7 +172,7 @@ public class Database {
 	
 	public class Users {
 		public ArrayList<User> getAll() throws SQLException {
-			String sql = "select id, username from user where id = ? ";
+			String sql = "select id, username from user ";
 			PreparedStatement statement = connection.prepareStatement(sql);
 			return parse(statement.executeQuery());
 		}
@@ -188,11 +188,15 @@ public class Database {
 		public boolean createUser(User user) throws SQLException {
 			String sql = "insert into user(id, username, password_hash) values(?, ?, ?) ";
 			PreparedStatement statement = connection.prepareStatement(sql);
-			user.id = getLastID() + 1;
-			statement.setInt(1, user.id);
+			int tempId = getLastID() + 1;
+			statement.setInt(1, tempId);
 			statement.setString(2, user.username);
 			statement.setString(3, user.password);
-			return statement.executeUpdate() == 1;
+			boolean success = statement.executeUpdate() == 1;
+			if (success) {
+				user.id = tempId;
+			}
+			return success;
 		}
 		
 		public ArrayList<User> getLike(String str) throws SQLException {

@@ -1,5 +1,6 @@
 package pt.isec.tests;
 
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import pt.isec.Constants;
 import pt.isec.Database;
@@ -17,7 +18,7 @@ class DatabaseTest {
 	Database database;
 	
 	public DatabaseTest() throws NoSuchAlgorithmException, SQLException {
-		System.out.println(Utils.hashString("random secure password"));
+		//System.out.println(Utils.hashString("random secure password"));
 		this.database = new Database(Constants.getDatabaseConnectionString(""),
 				Constants.DATABASE_USERNAME, Constants.DATABASE_PASSWORD);
 	}
@@ -37,21 +38,33 @@ class DatabaseTest {
 	
 	@Test
 	void checkCreateUser() throws Exception {
-		User user = new User("test123user", Utils.hashString("badpass"));
-		if(database.User.getByUsername("test123user") == null){
-			String sql = "delete from user where id = ? ";
-			PreparedStatement statement = database.getConnection().prepareStatement(sql);
-			statement.setInt(1, user.id);
-			assertSame(1, statement.executeUpdate());
+		User user = new User("test123user", Utils.hashString("#Dolfin12345"));
+		User temp = database.User.getByUsername(user.username);
+		if (temp != null) {
+			System.out.println(temp);
+			deleteUser(temp.id);
 		}
 		user.id = -1;
-		assertSame(false, database.User.createUser(user));
-		user.password = Utils.hashString("#Dolfin12345");
+		
 		assertSame(true, database.User.createUser(user));
 		assertNotEquals(-1, user.id);
-		assertSame(false, database.User.createUser(user));
+		assertThrows(MySQLIntegrityConstraintViolationException.class, () -> database.User.createUser(user));
 		
+		deleteUser(user.id);
 	}
 	
+	void deleteUser(int id) throws SQLException {
+		String sql = "delete from user where id = ? ";
+		PreparedStatement statement = database.getConnection().prepareStatement(sql);
+		statement.setInt(1, id);
+		assertSame(1, statement.executeUpdate());
+	}
 	
+	@Test
+	void allGetALl() throws SQLException {
+		database.User.getAll();
+		for (var channel : database.Channel.getAll()) {
+			database.Message.getAll(channel.id);
+		}
+	}
 }
