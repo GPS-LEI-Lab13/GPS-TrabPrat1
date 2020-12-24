@@ -34,6 +34,8 @@ public class Login {
                 Command command = app.sendAndReceive(Constants.LOGIN, user);
                 if (command.protocol.equals(Constants.ERROR)){
                     app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, (String) command.extras);
+                }else{
+                    app.setWindowRoot("MainWindow.fxml");
                 }
             } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
