@@ -32,4 +32,12 @@ public class Constants {
 	
 	public static final String DOWNLOAD_IDENTIFIER = "DOWNLOAD_";
 	public static final String UPLOAD_IDENTIFIER = "UPLOAD_";
+	
+	public static final String DATABASE_USERNAME = "userman";
+	public static final String DATABASE_PASSWORD = "random secure password";
+	
+	public static String getDatabaseConnectionString(String databaseAddress) {
+		return "jdbc:mysql://" + databaseAddress + ":3306/gps?allowPublicKeyRetrieval=true&autoReconnect=true&useSSL=false&"
+				+ "useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+	}
 }

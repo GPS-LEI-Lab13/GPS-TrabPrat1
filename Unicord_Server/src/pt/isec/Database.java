@@ -17,6 +17,10 @@ public class Database {
 		User = new Users();
 	}
 	
+	public Connection getConnection() {
+		return connection;
+	}
+	
 	public class Messages {
 		public ArrayList<Message> getAll(int channelId) throws SQLException {
 			String sql = "select id,sender_id,channel_id,moment_sent,type,content, " +
@@ -151,6 +155,7 @@ public class Database {
 		public Channel getByName(String name) throws SQLException {
 			String sql = "select id, creator_id, name from channel where name = ? ";
 			PreparedStatement statement = connection.prepareStatement(sql);
+			statement.setString(1, name);
 			ArrayList<Channel> list = parse(statement.executeQuery());
 			return list.size() == 0 ? null : list.get(0);
 		}

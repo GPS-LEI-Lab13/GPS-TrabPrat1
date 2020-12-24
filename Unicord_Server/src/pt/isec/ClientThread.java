@@ -31,10 +31,12 @@ public class ClientThread extends Thread {
 		try {
 			this.oos = new ObjectOutputStream(socket.getOutputStream());
 			this.receiver = new MainReceiver(socket);
+			this.receiver.start();
 			queue = receiver.addListener();
 			
 			while (true) {
 				Command command = queue.take();
+				System.out.println(command);
 				handleCommand(command);
 			}
 		} catch (Exception e) {
@@ -229,6 +231,7 @@ public class ClientThread extends Thread {
 	public void sendCommand(String protocol, Object extras) throws IOException {
 		Command obj = new Command(protocol, extras);
 		oos.writeUnshared(obj);
+		oos.flush();
 		if (!(extras instanceof FileBlock)) {
 			System.out.println(obj);
 		}

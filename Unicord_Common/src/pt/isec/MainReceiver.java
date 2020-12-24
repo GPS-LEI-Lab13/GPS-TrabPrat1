@@ -23,20 +23,19 @@ public class MainReceiver extends Thread {
 	
 	@Override
 	public void run() {
-		
-		while (true) {
-			Command command;
-			try {
-				command = (Command) ois.readObject();
-			} catch (IOException | ClassNotFoundException e) {
-				e.printStackTrace();
-				continue;
+		try {
+			while (true) {
+				
+				Command command = (Command) ois.readObject();
+				System.out.println(command);
+				for (var queue : list) {
+					queue.offer(command);
+				}
 			}
-			
-			for (var queue : list) {
-				queue.offer(command);
-			}
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
 		}
+		System.out.println("Client went down, sad");
 	}
 	
 	public BlockingQueue<Command> addListener() {
@@ -44,7 +43,7 @@ public class MainReceiver extends Thread {
 		list.add(queue);
 		return queue;
 	}
-
+	
 	public boolean removeListener(BlockingQueue<Command> queue) {
 		return list.remove(queue);
 	}
