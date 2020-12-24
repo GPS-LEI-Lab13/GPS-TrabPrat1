@@ -43,7 +43,7 @@ public class MainReceiver extends Thread {
 		list.add(queue);
 		return queue;
 	}
-	
+
 	public boolean removeListener(BlockingQueue<Command> queue) {
 		return list.remove(queue);
 	}

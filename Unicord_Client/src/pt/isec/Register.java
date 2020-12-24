@@ -1,6 +1,7 @@
 package pt.isec;
 
 import javafx.event.ActionEvent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
@@ -9,7 +10,7 @@ import java.io.IOException;
 public class Register {
 
     public TextField usernameTextField;
-    public TextField passwordTextFIeld;
+    public TextField passwordTextField;
     public TextField confirmPasswordTextField;
     public Button cancelButton;
     public Button registerButton;
@@ -25,16 +26,28 @@ public class Register {
 
     public void registerButton(ActionEvent actionEvent) {
         String username = usernameTextField.getText();
-        String password = passwordTextFIeld.getText();
+        String password = passwordTextField.getText();
         String confirmPassword = confirmPasswordTextField.getText();
+        App app = App.getApp();
+        if (!password.equals(confirmPassword)){
+            app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, "Password must be the same");
+            return;
+        }
 
-        if(Validator.checkUsernameRules(username) && Validator.checkUserPasswordRules(password) && password.equals(confirmPassword)){
+        if(Validator.checkUsernameRules(username) && Validator.checkUserPasswordRules(password)){
             User user = new User(username, password);
             try {
-                App.getApp().sendCommand(Constants.REGISTER, user);
-            } catch (IOException e) {
+                Command command = app.sendAndReceive(Constants.REGISTER, user);
+                if (!command.protocol.equals(Constants.SUCCESS)){
+                    app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, (String) command.extras);
+                }else {
+                    app.setWindowRoot("Login.fxml");
+                }
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
+        }else{
+            app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, "Password or Username doesn't follow rules");
         }
     }
 }

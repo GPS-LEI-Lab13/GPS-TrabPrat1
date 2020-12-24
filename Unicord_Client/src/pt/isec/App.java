@@ -37,6 +37,8 @@ public class App extends Application {
         socket = new Socket(serverAddress, Constants.SERVER_PORT);
         oOS = new ObjectOutputStream(socket.getOutputStream());
         mainReceiver = new MainReceiver(socket);
+        mainReceiver.start();
+        System.out.println("mainreceiveer created");
     }
 
 
@@ -95,6 +97,22 @@ public class App extends Application {
         Command command = new Command(protocol, obj);
         System.out.println("Sent: " + command);
         oOS.writeUnshared(command);
+        oOS.flush();
+        System.out.println("Flushei");
+    }
+    public Command sendAndReceive(String protocol, Object obj) throws IOException, InterruptedException {
+        BlockingQueue<Command> commands = mainReceiver.addListener();
+        sendCommand(protocol,obj);
+        while (true){
+            System.out.println("waintong");
+            Command command = commands.take();
+            System.out.println("Receive: " + command);
+            if (command.protocol.equals(Constants.SUCCESS) || command.protocol.equals(Constants.ERROR)){
+                mainReceiver.removeListener(commands);
+                return command;
+            }
+        }
+
     }
 
     public List<Channel> getChannels() {
