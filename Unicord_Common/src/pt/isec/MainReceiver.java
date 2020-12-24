@@ -1,8 +1,11 @@
 package pt.isec;
 
+import javafx.application.Platform;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +31,12 @@ public class MainReceiver extends Thread {
 			Command command;
 			try {
 				command = (Command) ois.readObject();
-			} catch (IOException | ClassNotFoundException e) {
+			}catch (SocketException e){
+				Platform.exit();
+				System.exit(-1);
+				break;
+			}
+			catch (IOException |ClassNotFoundException e) {
 				e.printStackTrace();
 				continue;
 			}
