@@ -1,6 +1,7 @@
 package pt.isec;
 
 import javafx.event.ActionEvent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
@@ -24,15 +25,21 @@ public class Login {
     public void logInButton(ActionEvent actionEvent) {
         String username = usernameTextField.getText();
         String password = passwordTextField.getText();
+        App app = App.getApp();
 
         boolean followRules = Validator.checkUserPasswordRules(password);
         if (followRules){
             User user = new User(username, password);
             try {
-                App.getApp().sendCommand(Constants.LOGIN, user);
-            } catch (IOException e) {
+                Command command = app.sendAndReceive(Constants.LOGIN, user);
+                if (command.protocol.equals(Constants.ERROR)){
+                    app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, (String) command.extras);
+                }
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
+        }else{
+            app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, "Username and/or password incorrect!");
         }
     }
 }

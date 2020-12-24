@@ -10,7 +10,7 @@ import java.io.IOException;
 public class Register {
 
     public TextField usernameTextField;
-    public TextField passwordTextFIeld;
+    public TextField passwordTextField;
     public TextField confirmPasswordTextField;
     public Button cancelButton;
     public Button registerButton;
@@ -26,7 +26,7 @@ public class Register {
 
     public void registerButton(ActionEvent actionEvent) {
         String username = usernameTextField.getText();
-        String password = passwordTextFIeld.getText();
+        String password = passwordTextField.getText();
         String confirmPassword = confirmPasswordTextField.getText();
         App app = App.getApp();
         if (!password.equals(confirmPassword)){
