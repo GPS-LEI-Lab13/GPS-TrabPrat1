@@ -96,6 +96,19 @@ public class App extends Application {
         System.out.println("Sent: " + command);
         oOS.writeUnshared(command);
     }
+    public Command sendAndReceive(String protocol, Object obj) throws IOException, InterruptedException {
+        BlockingQueue<Command> commands = mainReceiver.addListener();
+        sendCommand(protocol,obj);
+        while (true){
+            Command command = commands.take();
+            System.out.println("Receive: " + command);
+            if (command.protocol.equals(Constants.SUCCESS) || command.protocol.equals(Constants.ERROR)){
+                mainReceiver.removeListener(commands);
+                return command;
+            }
+        }
+
+    }
 
     public List<Channel> getChannels() {
         return channels;

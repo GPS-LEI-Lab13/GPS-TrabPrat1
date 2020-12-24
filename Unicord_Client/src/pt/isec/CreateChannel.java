@@ -14,11 +14,11 @@ public class CreateChannel {
     public void createButton(ActionEvent actionEvent) {
 
         String channelName = channelNameTextField.getText();
-
-        Channel channel = new Channel(channelName);
+        App app = App.getApp();
+        Channel channel = new Channel(app.getUser().id,channelName);
 
         try {
-            App.getApp().sendCommand(Constants.NEW_CHANNEL, channel);
+            app.sendCommand(Constants.NEW_CHANNEL, channel);
         } catch (IOException e) {
             e.printStackTrace();
         }
