@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -28,6 +29,7 @@ public class MainWindow implements Initializable {
     public VBox messagesFilesVBox;
 
     private static App app;
+    public TextField messageTextField;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -71,7 +73,6 @@ public class MainWindow implements Initializable {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-
     }
 
     private void updateChannelList(Channel channel) {
@@ -121,4 +122,21 @@ public class MainWindow implements Initializable {
     public void aboutMenuItem(ActionEvent actionEvent) {
     }
 
+    public void SendButton(ActionEvent actionEvent) {
+        //Message message = new Message();
+        /*try {
+            Command command = app.sendAndReceive(Constants.NEW_CHANNEL, channel);
+            if (command.protocol.equals(Constants.ERROR)){
+                app.openMessageDialog(Alert.AlertType.ERROR,"Channel Creation", (String) command.extras);
+            }else {
+                updateChannelList(channel);
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }*/
+    }
+
+    public void SendFileButton(ActionEvent actionEvent) {
+
+    }
 }
