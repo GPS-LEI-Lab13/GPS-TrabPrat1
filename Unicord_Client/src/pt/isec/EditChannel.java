@@ -42,14 +42,12 @@ public class EditChannel {
         try {
             boolean bool = app.openMessageDialogDeleteChannel(Alert.AlertType.CONFIRMATION, "Delete channel", "Do you want to delete this channel?");
             if (bool) {
-                //Command command = app.sendAndReceive(Constants.EDIT_CHANNEL, );
-                /*if (!command.protocol.equals(Constants.SUCCESS)){
+                Command command = app.sendAndReceive(Constants.DELETE_CHANNEL, app.getSelectedChannel().id);
+                if (!command.protocol.equals(Constants.SUCCESS)){
                     app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, (String) command.extras);
                 }else {
-                    //app.setWindowRoot("MainWindow.fxml");
-                }*/
-            } else {
-
+                    app.setWindowRoot("MainWindow.fxml");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -57,5 +55,10 @@ public class EditChannel {
     }
 
     public void CloseButton(ActionEvent actionEvent) {
+        try {
+            App.getApp().setWindowRoot("MainWindow.fxml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
