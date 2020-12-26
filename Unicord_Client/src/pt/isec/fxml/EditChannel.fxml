@@ -2,10 +2,12 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
@@ -63,8 +65,6 @@
             <Insets left="20.0" />
          </padding>
       </HBox>
-      <ListView fx:id="membersListView" layoutX="25.0" layoutY="136.0" prefHeight="300.0" prefWidth="300.0" />
-      <ListView fx:id="inviteListView" layoutX="375.0" layoutY="136.0" prefHeight="300.0" prefWidth="300.0" />
       <HBox alignment="CENTER" layoutX="375.0" layoutY="436.0" prefHeight="50.0" prefWidth="300.0">
          <children>
             <Button fx:id="deleteBtn" mnemonicParsing="false" onAction="#DeleteButton" prefWidth="100.0" text="Delete">
@@ -75,5 +75,23 @@
             <Button fx:id="closeBtn" mnemonicParsing="false" onAction="#CloseButton" prefWidth="100.0" text="Close" />
          </children>
       </HBox>
+      <ScrollPane layoutX="25.0" layoutY="136.0" prefHeight="300.0" prefWidth="300.0">
+        <content>
+          <AnchorPane prefHeight="300.0" prefWidth="300.0">
+               <children>
+                  <VBox prefHeight="300.0" prefWidth="300.0" />
+               </children>
+            </AnchorPane>
+        </content>
+      </ScrollPane>
+      <ScrollPane layoutX="375.0" layoutY="136.0" prefHeight="300.0" prefWidth="300.0">
+        <content>
+          <AnchorPane prefHeight="300.0" prefWidth="300.0">
+               <children>
+                  <VBox prefHeight="300.0" prefWidth="300.0" />
+               </children>
+            </AnchorPane>
+        </content>
+      </ScrollPane>
    </children>
 </Pane>

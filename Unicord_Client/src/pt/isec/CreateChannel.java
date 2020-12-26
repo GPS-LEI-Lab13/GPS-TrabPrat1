@@ -4,6 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 
@@ -20,8 +21,9 @@ public class CreateChannel {
 
         try {
             Command command = app.sendAndReceive(Constants.NEW_CHANNEL, channel);
-            if (command.protocol == Constants.SUCCESS) {
-
+            if (command.protocol.equals(Constants.SUCCESS)) {
+                Stage thisStage = (Stage) createButton.getScene().getWindow();
+                thisStage.close();
             } else {
                 App.getApp().openMessageDialog(Alert.AlertType.ERROR, "Creating Channel", (String) command.extras);
             }
