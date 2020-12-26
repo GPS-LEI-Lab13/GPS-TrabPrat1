@@ -9,8 +9,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.EditChannel">
    <children>
       <HBox alignment="CENTER" layoutX="25.0" layoutY="14.0" prefHeight="100.0" prefWidth="650.0">
          <children>
@@ -22,12 +21,12 @@
                   <Font size="16.0" />
                </font>
             </Text>
-            <TextField fx:id="usernameTextField1">
+            <TextField fx:id="channelNameTextField">
                <HBox.margin>
                   <Insets right="200.0" />
                </HBox.margin>
             </TextField>
-            <Button mnemonicParsing="false" prefWidth="100.0" text="Apply">
+            <Button fx:id="applyBtn" mnemonicParsing="false" onAction="#ApplyButton" prefWidth="100.0" text="Apply">
                <HBox.margin>
                   <Insets />
                </HBox.margin>
@@ -64,16 +63,16 @@
             <Insets left="20.0" />
          </padding>
       </HBox>
-      <ListView layoutX="25.0" layoutY="136.0" prefHeight="300.0" prefWidth="300.0" />
-      <ListView layoutX="375.0" layoutY="136.0" prefHeight="300.0" prefWidth="300.0" />
+      <ListView fx:id="membersListView" layoutX="25.0" layoutY="136.0" prefHeight="300.0" prefWidth="300.0" />
+      <ListView fx:id="inviteListView" layoutX="375.0" layoutY="136.0" prefHeight="300.0" prefWidth="300.0" />
       <HBox alignment="CENTER" layoutX="375.0" layoutY="436.0" prefHeight="50.0" prefWidth="300.0">
          <children>
-            <Button mnemonicParsing="false" prefWidth="100.0" text="Delete">
+            <Button fx:id="deleteBtn" mnemonicParsing="false" onAction="#DeleteButton" prefWidth="100.0" text="Delete">
                <HBox.margin>
                   <Insets right="100.0" />
                </HBox.margin>
             </Button>
-            <Button mnemonicParsing="false" prefWidth="100.0" text="Close" />
+            <Button fx:id="closeBtn" mnemonicParsing="false" onAction="#CloseButton" prefWidth="100.0" text="Close" />
          </children>
       </HBox>
    </children>

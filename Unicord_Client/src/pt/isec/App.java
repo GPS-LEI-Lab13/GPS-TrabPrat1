@@ -5,6 +5,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import pt.isec.Channel;
 import pt.isec.MainReceiver;
@@ -15,6 +17,7 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 
 public class App extends Application {
@@ -135,6 +138,20 @@ public class App extends Application {
         alert.setHeaderText(message);
 
         alert.showAndWait();
+    }
+
+    public boolean openMessageDialogDeleteChannel(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setContentText(message);
+        ButtonType buttonTypeDelete = new ButtonType("Delete");
+        ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == buttonTypeDelete){
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public User getUser() {
