@@ -4,7 +4,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
@@ -76,22 +75,14 @@
          </children>
       </HBox>
       <ScrollPane layoutX="25.0" layoutY="136.0" prefHeight="300.0" prefWidth="300.0">
-        <content>
-          <AnchorPane prefHeight="300.0" prefWidth="300.0">
-               <children>
-                  <VBox prefHeight="300.0" prefWidth="300.0" />
-               </children>
-            </AnchorPane>
-        </content>
+         <content>
+            <VBox fx:id="membersVbox" prefHeight="300.0" prefWidth="300.0" />
+         </content>
       </ScrollPane>
       <ScrollPane layoutX="375.0" layoutY="136.0" prefHeight="300.0" prefWidth="300.0">
-        <content>
-          <AnchorPane prefHeight="300.0" prefWidth="300.0">
-               <children>
-                  <VBox prefHeight="300.0" prefWidth="300.0" />
-               </children>
-            </AnchorPane>
-        </content>
+         <content>
+            <VBox fx:id="inviteVbox" prefHeight="300.0" prefWidth="300.0" />
+         </content>
       </ScrollPane>
    </children>
 </Pane>

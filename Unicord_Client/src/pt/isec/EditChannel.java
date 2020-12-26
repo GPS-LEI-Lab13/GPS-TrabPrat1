@@ -2,13 +2,15 @@ package pt.isec;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -19,19 +21,46 @@ public class EditChannel implements Initializable {
     public Button applyBtn;
     public Button deleteBtn;
     public Button closeBtn;
+    public VBox membersVbox;
+    public VBox inviteVbox;
+    private ChannelEditor channelEditor;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         App app = App.getApp();
         try {
-            Command command = app.sendAndReceive(Constants.EDIT_CHANNEL, null);
-            app.setChannels((List<Channel>) command.extras);
-            for (var channel: app.getChannels()) {
-                //updateChannelList(channel);
+            Command command = app.sendAndReceive(Constants.EDIT_CHANNEL_GET_USERS, app.getSelectedChannel().id); //TODO Check problems
+            if (command.protocol.equals(Constants.ERROR)){
+                app.openMessageDialog(Alert.AlertType.ERROR,"Channel Creation", (String) command.extras);
+            }else {
+                channelEditor = (ChannelEditor) command.extras;
+                usernameTextField1.setText(channelEditor.name);
+                scrollPanesEditChannel(channelEditor.usersIn, true, membersVbox);
+                scrollPanesEditChannel(channelEditor.usersOut, false, inviteVbox);
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public void scrollPanesEditChannel(ArrayList<String> users, boolean bool, VBox vBox){
+        for (var user : users) {
+            HBox hBox = new HBox();
+            Label label = new Label(user);
+            ImageView imageView = new ImageView(bool ? "Images/delete_user.png" : "Images/add_user.png");
+            if (bool){
+                imageView.setOnMouseClicked(event -> {
+
+                });
+            }else{
+                imageView.setOnMouseClicked(event -> {
+
+                });
+            }
+            hBox.getChildren().addAll(label, imageView);
+            vBox.getChildren().add(hBox);
+        }
+
     }
 
     public void ApplyButton(ActionEvent actionEvent) {

@@ -125,6 +125,10 @@ public class App extends Application {
         this.channels = channels;
     }
 
+    public Stage getStage() {
+        return mainStage;
+    }
+
     public Channel getSelectedChannel(){
         return selectedChannel;
     }
