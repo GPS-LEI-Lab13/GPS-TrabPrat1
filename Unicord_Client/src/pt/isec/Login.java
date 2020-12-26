@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 public class Login {
 
@@ -29,8 +30,8 @@ public class Login {
 
         boolean followRules = Validator.checkUserPasswordRules(password);
         if (followRules){
-            User user = new User(username, password);
             try {
+                User user = new User(username, Utils.hashString(password));
                 Command command = app.sendAndReceive(Constants.LOGIN, user);
                 if (command.protocol.equals(Constants.ERROR)){
                     app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, (String) command.extras);
@@ -38,7 +39,7 @@ public class Login {
                     app.setUser(user);
                     app.setWindowRoot("MainWindow.fxml");
                 }
-            } catch (IOException | InterruptedException e) {
+            } catch (IOException | InterruptedException | NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
         }else{
