@@ -6,6 +6,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -26,18 +29,18 @@ public class MainWindow implements Initializable {
     public VBox messagesFilesVBox;
 
     private static App app;
+    public TextField messageTextField;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        app = App.getApp();
         try {
             Command command = app.sendAndReceive(Constants.GET_CHANNELS, null);
             app.setChannels((List<Channel>) command.extras);
             for (var channel: app.getChannels()) {
                 updateChannelList(channel);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -70,7 +73,6 @@ public class MainWindow implements Initializable {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-
     }
 
     private void updateChannelList(Channel channel) {
@@ -79,11 +81,62 @@ public class MainWindow implements Initializable {
         box.setFillHeight(true);
 
         Label label = new Label(channel.name);
+        label.setOnMouseClicked(event -> {
+            try {
+                channelListOnClick(channel.name);
+                app.setSelectedChannel(channel);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
         box.getChildren().add(label);
-        //channelsVBox.getChildren().add();
+        if (channel.creatorId == app.getUser().id){
+            ImageView image = new ImageView("//Images//gear.png");
+            image.setOnMouseClicked(event -> {
+                app.setSelectedChannel(channel);
+                openEditChannel();
+            });
+            box.getChildren().add(image);
+        }
+
+        channelsVBox.getChildren().add(box);
+    }
+
+    private void channelListOnClick(String name) throws IOException, InterruptedException {
+        //TODO FAZER ISTO
+        app.sendAndReceive(Constants.GET_MESSAGES,app.getSelectedChannel().id);
+
+    }
+
+
+    private void openEditChannel() {
+        try {
+            app.setWindowRoot("EditChannel.fxml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void aboutMenuItem(ActionEvent actionEvent) {
     }
 
+    public void SendButton(ActionEvent actionEvent) {
+        //Message message = new Message();
+        /*try {
+            Command command = app.sendAndReceive(Constants.NEW_CHANNEL, channel);
+            if (command.protocol.equals(Constants.ERROR)){
+                app.openMessageDialog(Alert.AlertType.ERROR,"Channel Creation", (String) command.extras);
+            }else {
+                updateChannelList(channel);
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }*/
+    }
+
+    public void SendFileButton(ActionEvent actionEvent) {
+
+    }
 }
