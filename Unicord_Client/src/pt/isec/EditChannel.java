@@ -1,20 +1,38 @@
 package pt.isec;
 
 import javafx.event.ActionEvent;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.ResourceBundle;
 
-public class EditChannel {
+public class EditChannel implements Initializable {
     public TextField usernameTextField1;
     public ListView membersListView;
     public ListView inviteListView;
     public Button applyBtn;
     public Button deleteBtn;
     public Button closeBtn;
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        App app = App.getApp();
+        try {
+            Command command = app.sendAndReceive(Constants.EDIT_CHANNEL, null);
+            app.setChannels((List<Channel>) command.extras);
+            for (var channel: app.getChannels()) {
+                //updateChannelList(channel);
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void ApplyButton(ActionEvent actionEvent) {
         App app = App.getApp();

@@ -38,9 +38,7 @@ public class MainWindow implements Initializable {
             for (var channel: app.getChannels()) {
                 updateChannelList(channel);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
