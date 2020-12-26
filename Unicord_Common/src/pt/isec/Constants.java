@@ -16,13 +16,14 @@ public class Constants {
 	public static final String GET_USERS = "GET_USERS";
 	public static final String NEW_CHANNEL = "NEW_CHANNEL";
 	public static final String EDIT_CHANNEL = "EDIT_CHANNEL";
+	public static final String DELETE_CHANNEL = "DELETE_CHANNEL";
 	public static final String FILE_BLOCK = "FILE_BLOCK";
 	
 	public static final String SERVER_SHUTDOWN = "SERVER_SHUTDOWN";
 	
 	public static final int BUFFER_SIZE = 100 * 1024;
-	
-	public static File getFile(String fileName) {
+
+    public static File getFile(String fileName) {
 		File file = new File("files" + File.separator + fileName);
 		Utils.createFileDirectories(file);
 		return file;

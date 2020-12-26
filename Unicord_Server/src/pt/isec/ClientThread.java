@@ -63,11 +63,12 @@ public class ClientThread extends Thread {
 					case Constants.NEW_MESSAGE -> protocolNewMessage((Message) command.extras);
 					case Constants.DOWNLOAD_MESSAGES -> protocolDownloadMessage((int) command.extras);
 					case Constants.EDIT_CHANNEL -> protocolEditChannel((ChannelEditor) command.extras);
+					case Constants.DELETE_CHANNEL -> protocolDeleteChannel((int) command.extras);
 				}
 			}
 		}
 	}
-	
+
 	private void protocolRegister(User user) throws IOException, SQLException {
 		// Colocar na base de dados o user
 		// Enviar success ou error
@@ -148,7 +149,19 @@ public class ClientThread extends Thread {
 			app.sendToAll(Constants.NEW_MESSAGE, message);
 		}
 	}
-	
+
+	private void protocolDeleteChannel(int channelId) throws SQLException, IOException {
+		Channel channel = app.database.Channel.getByID(channelId);
+		if (channel.creatorId == user.id) {
+			if (app.database.Channel.deleteChannel(channelId))
+				sendCommand(Constants.SUCCESS, null);
+			else
+				sendCommand(Constants.ERROR, "Could not delete channel!");
+		} else {
+			sendCommand(Constants.ERROR, "You are not the channel owner!");
+		}
+	}
+
 	private void protocolDownloadMessage(int messageId) {
 		// Actually uploads
 		new Thread(() -> {
