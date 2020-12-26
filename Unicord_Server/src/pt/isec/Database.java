@@ -212,6 +212,7 @@ public class Database {
 			boolean success = statement.executeUpdate() == 1;
 			if (success) {
 				user.id = tempId;
+				// user gets added to general channel automatically from database trigger, hope so
 			}
 			return success;
 		}

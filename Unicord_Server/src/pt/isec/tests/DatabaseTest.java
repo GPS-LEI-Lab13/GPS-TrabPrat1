@@ -1,8 +1,6 @@
 package pt.isec.tests;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import pt.isec.*;
 
@@ -17,9 +15,9 @@ class DatabaseTest {
 	
 	Database database;
 	
-	public DatabaseTest() throws NoSuchAlgorithmException, SQLException {
-		//System.out.println(Utils.hashString("random secure password"));
-		this.database = new Database(Constants.getDatabaseConnectionString(""),
+	public DatabaseTest() throws SQLException {
+		this.database = new Database(
+				Constants.getDatabaseConnectionString(""),
 				Constants.DATABASE_USERNAME, Constants.DATABASE_PASSWORD);
 	}
 	
@@ -52,13 +50,6 @@ class DatabaseTest {
 		deleteUser(user.id);
 	}
 	
-	void deleteUser(int id) throws SQLException {
-		String sql = "delete from user where id = ? ";
-		PreparedStatement statement = database.getConnection().prepareStatement(sql);
-		statement.setInt(1, id);
-		assertSame(1, statement.executeUpdate());
-	}
-	
 	@Test
 	void allGetALl() throws SQLException {
 		database.User.getAll();
@@ -74,8 +65,10 @@ class DatabaseTest {
 		if (temp != null) {
 			deleteUser(temp.id);
 		}
+		
+		Channel channel = new Channel(1, "iufunvfeuyeds");
 		assertSame(true, database.User.createUser(user));
-		Channel channel = database.Channel.getAll().get(0);
+		assertSame(true, database.Channel.createChannel(channel));
 		
 		assertSame(true, database.Channel.addUser(user.id, channel.id));
 		
@@ -88,6 +81,7 @@ class DatabaseTest {
 		assertSame(0, userChannels.size());
 		
 		deleteUser(user.id);
+		assertSame(true, database.Channel.deleteChannel(channel.id));
 	}
 	
 	@Test
@@ -137,12 +131,20 @@ class DatabaseTest {
 		Message message = new Message(user.id, channel.id, Message.TYPE_TEXT, "test content");
 		assertSame(true, database.Message.createMessage(message));
 		int amountAfter = database.Message.getAll(channel.id).size();
-		assertSame(true, amountBefore != amountAfter);
+		assertNotEquals(amountAfter, amountBefore);
 		deleteMessage(message.id);
 		int amountAfterDel = database.Message.getAll(channel.id).size();
-		assertSame(true, amountBefore == amountAfterDel);
+		assertEquals(amountBefore, amountAfterDel);
 		
 		assertSame(true, database.Channel.deleteChannel(channel.id));
+	}
+	
+	// Helpers
+	void deleteUser(int id) throws SQLException {
+		String sql = "delete from user where id = ? ";
+		PreparedStatement statement = database.getConnection().prepareStatement(sql);
+		statement.setInt(1, id);
+		assertSame(1, statement.executeUpdate());
 	}
 	
 	void deleteMessage(int messageId) throws SQLException {
