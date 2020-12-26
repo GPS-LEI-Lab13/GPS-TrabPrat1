@@ -6,8 +6,8 @@ public class ChannelEditor {
 	
 	public final int channelId;
 	public String name;
-	public ArrayList<Integer> usersToAdd;
-	public ArrayList<Integer> usersToRemove;
+	public ArrayList<String> usersIn;
+	public ArrayList<String> usersOut;
 	
 	public ChannelEditor(int channelId) {
 		this.channelId = channelId;
@@ -18,8 +18,8 @@ public class ChannelEditor {
 		return "ChannelEditor{" +
 				"channelId=" + channelId +
 				", name='" + name + '\'' +
-				", usersToAdd=" + usersToAdd +
-				", usersToRemove=" + usersToRemove +
+				", usersToAdd=" + usersIn +
+				", usersToRemove=" + usersOut +
 				'}';
 	}
 }

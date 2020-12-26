@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 public class ClientThread extends Thread {
@@ -64,11 +64,40 @@ public class ClientThread extends Thread {
 					case Constants.DOWNLOAD_MESSAGES -> protocolDownloadMessage((int) command.extras);
 					case Constants.EDIT_CHANNEL -> protocolEditChannel((ChannelEditor) command.extras);
 					case Constants.DELETE_CHANNEL -> protocolDeleteChannel((int) command.extras);
+					case Constants.EDIT_CHANNEL_GET_USERS -> protocolEditChannelGetUsers((int) command.extras);
 				}
 			}
 		}
 	}
-
+	
+	private void protocolEditChannelGetUsers(int channelId) throws IOException, SQLException {
+		ChannelEditor editor = new ChannelEditor(channelId);
+		Channel channel = app.database.Channel.getByID(channelId);
+		if (channel == null) {
+			sendCommand(Constants.ERROR, "Client Side Error");
+		}
+		/* On Client Side only fill changes
+		editor.usersIn.removeIf(s -> s.contains(username));
+		editorReceived.usersIn.removeIf(s -> s.contains(username));
+		editor.usersOut.add(username);
+		*/
+		List<User> usersIn = app.database.Channel.getChannelUsers(editor.channelId);
+		
+		//Users already on the channel
+		editor.usersIn = new ArrayList<>(usersIn.size());
+		usersIn.forEach(user -> editor.usersIn.add(user.username));
+		//Users that are not part of the channel
+		List<User> allUsers = app.database.User.getAll();
+		editor.usersOut = new ArrayList<>(allUsers.size() - usersIn.size());
+		
+		allUsers.forEach(user -> {
+			if (!editor.usersIn.contains(user.username))
+				editor.usersOut.add(user.username);
+		});
+		
+		sendCommand(Constants.SUCCESS, editor);
+	}
+	
 	private void protocolRegister(User user) throws IOException, SQLException {
 		// Colocar na base de dados o user
 		// Enviar success ou error
@@ -149,19 +178,21 @@ public class ClientThread extends Thread {
 			app.sendToAll(Constants.NEW_MESSAGE, message);
 		}
 	}
-
+	
 	private void protocolDeleteChannel(int channelId) throws SQLException, IOException {
 		Channel channel = app.database.Channel.getByID(channelId);
 		if (channel.creatorId == user.id) {
-			if (app.database.Channel.deleteChannel(channelId))
+			if (app.database.Channel.deleteChannel(channelId)) {
+				currentChannel = -1;
 				sendCommand(Constants.SUCCESS, null);
-			else
+			} else {
 				sendCommand(Constants.ERROR, "Could not delete channel!");
+			}
 		} else {
 			sendCommand(Constants.ERROR, "You are not the channel owner!");
 		}
 	}
-
+	
 	private void protocolDownloadMessage(int messageId) {
 		// Actually uploads
 		new Thread(() -> {
@@ -221,17 +252,21 @@ public class ClientThread extends Thread {
 				return;
 			}
 		}
-		if (channelChanges.usersToAdd != null) {
-			for (var userId : channelChanges.usersToAdd) {
-				if (!app.database.Channel.addUser(userId, channel.id)) {
+		if (channelChanges.usersIn != null) {
+			for (var username : channelChanges.usersIn) {
+				User user = app.database.User.getByUsername(username);
+				
+				if (!app.database.Channel.addUser(user.id, channel.id)) {
 					sendCommand(Constants.ERROR, "Something went wrong");
 					return;
 				}
 			}
 		}
-		if (channelChanges.usersToRemove != null) {
-			for (var userId : channelChanges.usersToRemove) {
-				if (!app.database.Channel.removeUser(userId, channel.id)) {
+		if (channelChanges.usersOut != null) {
+			for (var username : channelChanges.usersOut) {
+				User user = app.database.User.getByUsername(username);
+				
+				if (!app.database.Channel.removeUser(user.id, channel.id)) {
 					sendCommand(Constants.ERROR, "Something went wrong");
 					return;
 				}

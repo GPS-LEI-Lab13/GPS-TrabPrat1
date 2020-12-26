@@ -2,6 +2,7 @@ package pt.isec;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class Database {
 	
@@ -116,6 +117,15 @@ public class Database {
 			return parse(statement.executeQuery());
 		}
 		
+		public List<User> getChannelUsers(int channelId) throws SQLException {
+			String sql = "select id,username \n" +
+					"from user, channel_user \n" +
+					"where channel_id = ? and user_id = id ";
+			PreparedStatement statement = connection.prepareStatement(sql);
+			statement.setInt(1, channelId);
+			return User.parse(statement.executeQuery());
+		}
+		
 		public boolean createChannel(Channel channel) throws SQLException {
 			String sql = "insert into channel(id, creator_id, name) values(?, ?, ?) ";
 			PreparedStatement statement = connection.prepareStatement(sql);
@@ -184,7 +194,6 @@ public class Database {
 			if (!result.next()) return -1;
 			return result.getInt(1);
 		}
-		
 	}
 	
 	public class Users {
