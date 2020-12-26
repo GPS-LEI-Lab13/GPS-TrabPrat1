@@ -4,11 +4,16 @@ import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import javax.print.attribute.standard.NumberUp;
+//import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -17,6 +22,8 @@ import java.util.ResourceBundle;
 public class MainWindow implements Initializable {
     public ScrollPane channelsScrollPane;
     public ScrollPane messageFileScrollPane;
+    public VBox channelsVBox;
+    public VBox messagesFilesVBox;
 
     private static App app;
 
@@ -67,7 +74,13 @@ public class MainWindow implements Initializable {
     }
 
     private void updateChannelList(Channel channel) {
+        HBox box = new HBox();
+        box.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        box.setFillHeight(true);
 
+        Label label = new Label(channel.name);
+        box.getChildren().add(label);
+        //channelsVBox.getChildren().add();
     }
 
     public void aboutMenuItem(ActionEvent actionEvent) {
