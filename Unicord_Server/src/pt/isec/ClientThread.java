@@ -53,7 +53,7 @@ public class ClientThread extends Thread {
 			default -> {
 				if (!isLoggedIn()) {
 					sendCommand(Constants.ERROR, "User is not logged in");
-					break;
+					return;
 				}
 				switch (command.protocol) {
 					case Constants.LOGOUT -> protocolLogout();
@@ -75,12 +75,15 @@ public class ClientThread extends Thread {
 		Channel channel = app.database.Channel.getByID(channelId);
 		if (channel == null) {
 			sendCommand(Constants.ERROR, "Client Side Error");
+			return;
 		}
 		/* On Client Side only fill changes
 		editor.usersIn.removeIf(s -> s.contains(username));
 		editorReceived.usersIn.removeIf(s -> s.contains(username));
 		editor.usersOut.add(username);
 		*/
+		editor.name = channel.name;
+		
 		List<User> usersIn = app.database.Channel.getChannelUsers(editor.channelId);
 		
 		//Users already on the channel
@@ -101,7 +104,9 @@ public class ClientThread extends Thread {
 	private void protocolRegister(User user) throws IOException, SQLException {
 		// Colocar na base de dados o user
 		// Enviar success ou error
-		if (app.database.User.createUser(user)) {
+		if (!Validator.checkUsernameAvailability(user.username, app.database)) {
+			sendCommand(Constants.ERROR, "Username already in use");
+		} else if (app.database.User.createUser(user)) {
 			sendCommand(Constants.SUCCESS, null);
 		} else {
 			sendCommand(Constants.ERROR, "Register failed!");
@@ -145,7 +150,6 @@ public class ClientThread extends Thread {
 			return;
 		}
 		if (message.type.equals(Message.TYPE_FILE)) {
-			message.content = Utils.addTimestampFileName(message.content);
 			BlockingQueue<Command> commandQueue = receiver.addListener();
 			sendCommand(Constants.SUCCESS, null);
 			new Thread(() -> {
@@ -157,7 +161,7 @@ public class ClientThread extends Thread {
 						if (command.protocol.equals(Constants.FILE_BLOCK) && command.extras instanceof FileBlock) {
 							FileBlock fileBlock = (FileBlock) command.extras;
 							// This is upload from the client to the server
-							if (fileBlock.identifier.equals(Constants.UPLOAD_IDENTIFIER + message.id)) { //  <---- TODO check this shit out
+							if (fileBlock.identifier.equals(Constants.UPLOAD_IDENTIFIER + message.content)) { //  <---- TODO part 1 : check this shit out
 								
 								if (fileBlock.bytes.length == 0) {
 									fos.close();
@@ -205,7 +209,7 @@ public class ClientThread extends Thread {
 				
 				FileInputStream fis = new FileInputStream(Constants.getFile(message.content));
 				// This is download from the client to the server
-				FileBlock fileBlock = new FileBlock(Constants.DOWNLOAD_IDENTIFIER + messageId);
+				FileBlock fileBlock = new FileBlock(Constants.DOWNLOAD_IDENTIFIER + message.content); // TODO part 2 : check this shit out
 				var bytes = fileBlock.bytes;
 				
 				while (true) {
@@ -231,6 +235,11 @@ public class ClientThread extends Thread {
 	
 	private void protocolNewChannel(Channel channel) throws SQLException, IOException {
 		channel.creatorId = user.id;
+		if (!Validator.checkChannelAvailability(channel.name, app.database)) {
+			sendCommand(Constants.ERROR, "Channel name already in use");
+			return;
+		}
+		
 		boolean success = app.database.Channel.createChannel(channel);
 		if (!success) {
 			sendCommand(Constants.ERROR, "Server Error");
@@ -242,8 +251,10 @@ public class ClientThread extends Thread {
 	
 	private void protocolEditChannel(ChannelEditor channelChanges) throws IOException, SQLException {
 		var channel = app.database.Channel.getByID(channelChanges.channelId);
-		if (channel.creatorId != user.id) sendCommand(Constants.ERROR, "User is  not channel owner");
-		
+		if (channel.creatorId != user.id) {
+			sendCommand(Constants.ERROR, "User is  not channel owner");
+			return;
+		}
 		channel.name = channelChanges.name;
 		
 		if (channelChanges.name != null) {
