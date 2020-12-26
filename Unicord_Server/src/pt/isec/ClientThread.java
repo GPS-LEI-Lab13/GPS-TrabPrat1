@@ -104,7 +104,9 @@ public class ClientThread extends Thread {
 	private void protocolRegister(User user) throws IOException, SQLException {
 		// Colocar na base de dados o user
 		// Enviar success ou error
-		if (app.database.User.createUser(user)) {
+		if (!Validator.checkUsernameAvailability(user.username, app.database)) {
+			sendCommand(Constants.ERROR, "Username already in use");
+		} else if (app.database.User.createUser(user)) {
 			sendCommand(Constants.SUCCESS, null);
 		} else {
 			sendCommand(Constants.ERROR, "Register failed!");
@@ -233,6 +235,11 @@ public class ClientThread extends Thread {
 	
 	private void protocolNewChannel(Channel channel) throws SQLException, IOException {
 		channel.creatorId = user.id;
+		if (!Validator.checkChannelAvailability(channel.name, app.database)) {
+			sendCommand(Constants.ERROR, "Channel name already in use");
+			return;
+		}
+		
 		boolean success = app.database.Channel.createChannel(channel);
 		if (!success) {
 			sendCommand(Constants.ERROR, "Server Error");
