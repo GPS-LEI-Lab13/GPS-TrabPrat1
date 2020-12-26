@@ -81,12 +81,20 @@ public class MainWindow implements Initializable {
 
         Label label = new Label(channel.name);
         label.setOnMouseClicked(event -> {
-            channelListOnClick(channel.name);
+            try {
+                channelListOnClick(channel.name);
+                app.setSelectedChannel(channel);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         });
         box.getChildren().add(label);
         if (channel.creatorId == app.getUser().id){
             ImageView image = new ImageView("//Images//gear.png");
             image.setOnMouseClicked(event -> {
+                app.setSelectedChannel(channel);
                 openEditChannel();
             });
             box.getChildren().add(image);
@@ -95,10 +103,9 @@ public class MainWindow implements Initializable {
         channelsVBox.getChildren().add(box);
     }
 
-    private void channelListOnClick(String name) {
+    private void channelListOnClick(String name) throws IOException, InterruptedException {
         //TODO FAZER ISTO
-        //selcionar este canal, pedir as mensagens e depois adicionar as mensgaem no ecra
-
+        app.sendAndReceive(Constants.GET_MESSAGES,app.getSelectedChannel().id);
 
     }
 

@@ -121,12 +121,16 @@ public class App extends Application {
         return channels;
     }
 
+    public void setChannels(List<Channel> channels) {
+        this.channels = channels;
+    }
+
     public Channel getSelectedChannel(){
         return selectedChannel;
     }
 
-    public void setChannels(List<Channel> channels) {
-        this.channels = channels;
+    public void setSelectedChannel(Channel selectedChannel) {
+        this.selectedChannel = selectedChannel;
     }
 
     public void downloadFile() {
