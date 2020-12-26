@@ -30,9 +30,9 @@
                      </font>
                   </Text>
                   <ScrollPane fx:id="channelsScrollPane" prefHeight="200.0" prefWidth="240.0">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="220.0" />
-                    </content>
+                     <content>
+                        <VBox fx:id="channelsVBox" prefHeight="200.0" prefWidth="212.0" />
+                     </content>
                   </ScrollPane>
                </children>
             </VBox>
@@ -44,9 +44,9 @@
                      </font>
                   </Text>
                   <ScrollPane fx:id="messageFileScrollPane" prefHeight="200.0" prefWidth="200.0">
-                    <content>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="176.0" />
-                    </content>
+                     <content>
+                        <VBox fx:id="messagesFilesVBox" prefHeight="200.0" prefWidth="100.0" />
+                     </content>
                   </ScrollPane>
                </children>
             </VBox>

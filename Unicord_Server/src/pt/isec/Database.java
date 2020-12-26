@@ -97,20 +97,33 @@ public class Database {
 		}
 		
 		public ArrayList<Channel> getUserChannels(int userId) throws SQLException {
-			String sql = "select c.id, c.creator_id, c.name from channel c, channel_user cu where cu.channel_id = c.id and cu.user_id = ? ";
+			String sql = "select * from (\n" +
+					"\t(select id, creator_id, name \n" +
+					"\tfrom channel, channel_user \n" +
+					"\twhere channel_id = id and user_id = ? )\n" +
+					"    union\n" +
+					"    (select id, creator_id, name \n" +
+					"\tfrom channel \n" +
+					"\twhere creator_id = ?)\n" +
+					") collection;";
 			PreparedStatement statement = connection.prepareStatement(sql);
 			statement.setInt(1, userId);
+			statement.setInt(2, userId);
 			return parse(statement.executeQuery());
 		}
 		
 		public boolean createChannel(Channel channel) throws SQLException {
 			String sql = "insert into channel(id, creator_id, name) values(?, ?, ?) ";
 			PreparedStatement statement = connection.prepareStatement(sql);
-			channel.id = getLastID() + 1;
-			statement.setInt(1, channel.id);
+			int tempId = getLastID() + 1;
+			statement.setInt(1, tempId);
 			statement.setInt(2, channel.creatorId);
 			statement.setString(3, channel.name);
-			return statement.executeUpdate() == 1;
+			boolean changeIt = statement.executeUpdate() == 1;
+			if (changeIt) {
+				channel.id = tempId;
+			}
+			return changeIt;
 		}
 		
 		public boolean editChannel(Channel channel) throws SQLException {

@@ -2,14 +2,12 @@ package pt.isec.tests;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import org.junit.jupiter.api.Test;
-import pt.isec.Constants;
-import pt.isec.Database;
-import pt.isec.User;
-import pt.isec.Utils;
+import pt.isec.*;
 
 import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,7 +39,6 @@ class DatabaseTest {
 		User user = new User("test123user", Utils.hashString("#Dolfin12345"));
 		User temp = database.User.getByUsername(user.username);
 		if (temp != null) {
-			System.out.println(temp);
 			deleteUser(temp.id);
 		}
 		user.id = -1;
@@ -66,5 +63,58 @@ class DatabaseTest {
 		for (var channel : database.Channel.getAll()) {
 			database.Message.getAll(channel.id);
 		}
+	}
+	
+	@Test
+	void getUserChannels() throws SQLException, NoSuchAlgorithmException {
+		User user = new User("testUser321890312", Utils.hashString("testPass"));
+		User temp = database.User.getByUsername(user.username);
+		if (temp != null) {
+			deleteUser(temp.id);
+		}
+		assertSame(true, database.User.createUser(user));
+		Channel channel = database.Channel.getAll().get(0);
+		
+		assertSame(true, database.Channel.addUser(user.id, channel.id));
+		ArrayList<Channel> userChannels = database.Channel.getUserChannels(user.id);
+		assertSame(1, userChannels.size());
+		assertSame(true, database.Channel.removeUser(user.id, channel.id));
+		userChannels = database.Channel.getUserChannels(user.id);
+		assertSame(0, userChannels.size());
+		
+		deleteUser(user.id);
+	}
+	
+	@Test
+	void createNRemoveChannel() throws SQLException {
+		User admin = database.User.getByUsername("Admin");
+		Channel channel = new Channel(admin.id, "testChannelDatabaseTests4910");
+		Channel temp = database.Channel.getByName(channel.name);
+		if (temp != null) {
+			assertSame(true, database.Channel.deleteChannel(temp.id));
+		}
+		assertSame(true, database.Channel.createChannel(channel));
+		boolean didCreateIt = false;
+		for (Channel cha : database.Channel.getUserChannels(admin.id)) {
+			if (cha.name.equals(channel.name)) {
+				didCreateIt = true;
+				break;
+			}
+		}
+		assertSame(true, didCreateIt);
+		assertSame(true, database.Channel.deleteChannel(channel.id));
+	}
+	
+	@Test
+	void editNDeleteChannel() throws SQLException {
+		Channel channel = new Channel(1, "testCtabaseTests31298");
+		assertSame(true, database.Channel.createChannel(channel));
+		channel.name = "newName";
+		assertSame(true, database.Channel.editChannel(channel));
+		Channel changed = database.Channel.getByID(channel.id);
+		assertSame(true, changed != null);
+		assertSame(true, changed.name.equals(channel.name));
+		
+		assertSame(true, database.Channel.deleteChannel(channel.id));
 	}
 }
