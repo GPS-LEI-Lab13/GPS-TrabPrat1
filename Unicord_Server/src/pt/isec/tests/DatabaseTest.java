@@ -15,9 +15,9 @@ class DatabaseTest {
 	
 	Database database;
 	
-	public DatabaseTest() throws NoSuchAlgorithmException, SQLException {
-		//System.out.println(Utils.hashString("random secure password"));
-		this.database = new Database(Constants.getDatabaseConnectionString(""),
+	public DatabaseTest() throws SQLException {
+		this.database = new Database(
+				Constants.getDatabaseConnectionString(""),
 				Constants.DATABASE_USERNAME, Constants.DATABASE_PASSWORD);
 	}
 	
@@ -50,13 +50,6 @@ class DatabaseTest {
 		deleteUser(user.id);
 	}
 	
-	void deleteUser(int id) throws SQLException {
-		String sql = "delete from user where id = ? ";
-		PreparedStatement statement = database.getConnection().prepareStatement(sql);
-		statement.setInt(1, id);
-		assertSame(1, statement.executeUpdate());
-	}
-	
 	@Test
 	void allGetALl() throws SQLException {
 		database.User.getAll();
@@ -72,17 +65,23 @@ class DatabaseTest {
 		if (temp != null) {
 			deleteUser(temp.id);
 		}
+		
+		Channel channel = new Channel(1, "iufunvfeuyeds");
 		assertSame(true, database.User.createUser(user));
-		Channel channel = database.Channel.getAll().get(0);
+		assertSame(true, database.Channel.createChannel(channel));
 		
 		assertSame(true, database.Channel.addUser(user.id, channel.id));
+		
 		ArrayList<Channel> userChannels = database.Channel.getUserChannels(user.id);
+		// TODO eventualmente vai dar erros, I think, ass. Rodrigo
+		
 		assertSame(1, userChannels.size());
 		assertSame(true, database.Channel.removeUser(user.id, channel.id));
 		userChannels = database.Channel.getUserChannels(user.id);
 		assertSame(0, userChannels.size());
 		
 		deleteUser(user.id);
+		assertSame(true, database.Channel.deleteChannel(channel.id));
 	}
 	
 	@Test
@@ -116,5 +115,42 @@ class DatabaseTest {
 		assertSame(true, changed.name.equals(channel.name));
 		
 		assertSame(true, database.Channel.deleteChannel(channel.id));
+	}
+	
+	@Test
+	void createMessage() throws SQLException {
+		User user = database.User.getByUsername("Admin");
+		Channel channel = new Channel(user.id, "kidew0ocm");
+		Channel temp = database.Channel.getByName(channel.name);
+		if (temp != null) {
+			assertSame(true, database.Channel.deleteChannel(temp.id));
+		}
+		
+		assertSame(true, database.Channel.createChannel(channel));
+		int amountBefore = database.Message.getAll(channel.id).size();
+		Message message = new Message(user.id, channel.id, Message.TYPE_TEXT, "test content");
+		assertSame(true, database.Message.createMessage(message));
+		int amountAfter = database.Message.getAll(channel.id).size();
+		assertNotEquals(amountAfter, amountBefore);
+		deleteMessage(message.id);
+		int amountAfterDel = database.Message.getAll(channel.id).size();
+		assertEquals(amountBefore, amountAfterDel);
+		
+		assertSame(true, database.Channel.deleteChannel(channel.id));
+	}
+	
+	// Helpers
+	void deleteUser(int id) throws SQLException {
+		String sql = "delete from user where id = ? ";
+		PreparedStatement statement = database.getConnection().prepareStatement(sql);
+		statement.setInt(1, id);
+		assertSame(1, statement.executeUpdate());
+	}
+	
+	void deleteMessage(int messageId) throws SQLException {
+		String sql = "delete from message where id = ? ";
+		PreparedStatement statement = database.getConnection().prepareStatement(sql);
+		statement.setInt(1, messageId);
+		assertSame(1, statement.executeUpdate());
 	}
 }
