@@ -79,8 +79,7 @@ public class App extends Application {
 
     }
 
-
-    private Parent loadFxml(String fxml) throws IOException {
+    public Parent loadFxml(String fxml) throws IOException {
         return FXMLLoader.load(getClass().getResource(fxml));
     }
 
