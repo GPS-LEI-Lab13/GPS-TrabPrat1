@@ -6,6 +6,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -29,6 +31,7 @@ public class MainWindow implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        app = App.getApp();
         try {
             Command command = app.sendAndReceive(Constants.GET_CHANNELS, null);
             app.setChannels((List<Channel>) command.extras);
@@ -79,8 +82,35 @@ public class MainWindow implements Initializable {
         box.setFillHeight(true);
 
         Label label = new Label(channel.name);
+        label.setOnMouseClicked(event -> {
+            channelListOnClick(channel.name);
+        });
         box.getChildren().add(label);
-        //channelsVBox.getChildren().add();
+        if (channel.creatorId == app.getUser().id){
+            ImageView image = new ImageView("//Images//gear.png");
+            image.setOnMouseClicked(event -> {
+                openEditChannel();
+            });
+            box.getChildren().add(image);
+        }
+
+        channelsVBox.getChildren().add(box);
+    }
+
+    private void channelListOnClick(String name) {
+        //TODO FAZER ISTO
+        //selcionar este canal, pedir as mensagens e depois adicionar as mensgaem no ecra
+
+
+    }
+
+
+    private void openEditChannel() {
+        try {
+            app.setWindowRoot("EditChannel.fxml");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void aboutMenuItem(ActionEvent actionEvent) {
