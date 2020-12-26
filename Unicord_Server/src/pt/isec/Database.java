@@ -49,13 +49,17 @@ public class Database {
 		public boolean createMessage(Message message) throws SQLException {
 			String sql = "insert into message(id, sender_id, channel_id, type, content) values(?, ?, ?, ?, ?) ";
 			PreparedStatement statement = connection.prepareStatement(sql);
-			message.id = getLastID() + 1;
-			statement.setInt(1, message.id);
+			int tempId = getLastID() + 1;
+			statement.setInt(1, tempId);
 			statement.setInt(2, message.senderId);
 			statement.setInt(3, message.channelId);
 			statement.setString(4, message.type);
 			statement.setString(5, message.content);
-			return statement.executeUpdate() == 1;
+			boolean success = statement.executeUpdate() == 1;
+			if(success){
+				message.id = tempId;
+			}
+			return success;
 		}
 		
 		public Message getByID(int id) throws SQLException {

@@ -1,6 +1,8 @@
 package pt.isec.tests;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import pt.isec.*;
 
@@ -76,7 +78,10 @@ class DatabaseTest {
 		Channel channel = database.Channel.getAll().get(0);
 		
 		assertSame(true, database.Channel.addUser(user.id, channel.id));
+		
 		ArrayList<Channel> userChannels = database.Channel.getUserChannels(user.id);
+		// TODO eventualmente vai dar erros, I think, ass. Rodrigo
+		
 		assertSame(1, userChannels.size());
 		assertSame(true, database.Channel.removeUser(user.id, channel.id));
 		userChannels = database.Channel.getUserChannels(user.id);
@@ -116,5 +121,34 @@ class DatabaseTest {
 		assertSame(true, changed.name.equals(channel.name));
 		
 		assertSame(true, database.Channel.deleteChannel(channel.id));
+	}
+	
+	@Test
+	void createMessage() throws SQLException {
+		User user = database.User.getByUsername("Admin");
+		Channel channel = new Channel(user.id, "kidew0ocm");
+		Channel temp = database.Channel.getByName(channel.name);
+		if (temp != null) {
+			assertSame(true, database.Channel.deleteChannel(temp.id));
+		}
+		
+		assertSame(true, database.Channel.createChannel(channel));
+		int amountBefore = database.Message.getAll(channel.id).size();
+		Message message = new Message(user.id, channel.id, Message.TYPE_TEXT, "test content");
+		assertSame(true, database.Message.createMessage(message));
+		int amountAfter = database.Message.getAll(channel.id).size();
+		assertSame(true, amountBefore != amountAfter);
+		deleteMessage(message.id);
+		int amountAfterDel = database.Message.getAll(channel.id).size();
+		assertSame(true, amountBefore == amountAfterDel);
+		
+		assertSame(true, database.Channel.deleteChannel(channel.id));
+	}
+	
+	void deleteMessage(int messageId) throws SQLException {
+		String sql = "delete from message where id = ? ";
+		PreparedStatement statement = database.getConnection().prepareStatement(sql);
+		statement.setInt(1, messageId);
+		assertSame(1, statement.executeUpdate());
 	}
 }
