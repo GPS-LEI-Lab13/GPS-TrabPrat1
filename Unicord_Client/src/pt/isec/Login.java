@@ -35,6 +35,7 @@ public class Login {
                 if (command.protocol.equals(Constants.ERROR)){
                     app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, (String) command.extras);
                 }else{
+                    app.setUser(user);
                     app.setWindowRoot("MainWindow.fxml");
                 }
             } catch (IOException | InterruptedException e) {
