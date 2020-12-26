@@ -1,8 +1,10 @@
 package pt.isec;
 
 import javafx.event.ActionEvent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 
@@ -18,8 +20,14 @@ public class CreateChannel {
         Channel channel = new Channel(app.getUser().id,channelName);
 
         try {
-            app.sendCommand(Constants.NEW_CHANNEL, channel);
-        } catch (IOException e) {
+            Command command = app.sendAndReceive(Constants.NEW_CHANNEL, channel);
+            if (command.protocol.equals(Constants.SUCCESS)) {
+                Stage thisStage = (Stage) createButton.getScene().getWindow();
+                thisStage.close();
+            } else {
+                App.getApp().openMessageDialog(Alert.AlertType.ERROR, "Creating Channel", (String) command.extras);
+            }
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

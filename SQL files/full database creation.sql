@@ -50,3 +50,15 @@ CREATE TABLE IF NOT EXISTS Message (
 -- Setup -----------------------------------
 insert into User(id,username,password_hash) values(1,'Admin','3fw42nemv0hxxa98e8rn32syomxixtp9259v0mebmrmi91evfbuser');
 insert into Channel(id,creator_id,name) values(1,1,'General');
+-- Triggers --------------------------------
+drop trigger if exists generalAddition;
+delimiter $$
+create trigger generalAddition after insert on user 
+	for each row 
+begin
+	insert into channel_user(channel_id, user_id) values(1, new.id);
+end $$
+delimiter ;
+
+
+
