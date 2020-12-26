@@ -42,8 +42,7 @@ public class App extends Application {
     }
 
 
-    public App() {
-    }
+    public App() { }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -79,8 +78,7 @@ public class App extends Application {
 
     }
 
-
-    private Parent loadFxml(String fxml) throws IOException {
+    public Parent loadFxml(String fxml) throws IOException {
         return FXMLLoader.load(getClass().getResource(fxml));
     }
 
@@ -119,6 +117,10 @@ public class App extends Application {
         return channels;
     }
 
+    public void setChannels(List<Channel> channels) {
+        this.channels = channels;
+    }
+
     public void downloadFile() {
 
     }
@@ -137,5 +139,9 @@ public class App extends Application {
 
     public User getUser() {
         return this.user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
