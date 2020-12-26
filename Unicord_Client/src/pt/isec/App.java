@@ -25,6 +25,7 @@ public class App extends Application {
     private ObjectOutputStream oOS;
     private MainReceiver mainReceiver;
     private User user;
+    private Channel selectedChannel;
     private List<Channel> channels;
 
     private Stage mainStage;
@@ -122,6 +123,14 @@ public class App extends Application {
 
     public void setChannels(List<Channel> channels) {
         this.channels = channels;
+    }
+
+    public Channel getSelectedChannel(){
+        return selectedChannel;
+    }
+
+    public void setSelectedChannel(Channel selectedChannel) {
+        this.selectedChannel = selectedChannel;
     }
 
     public void downloadFile() {

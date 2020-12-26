@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -28,6 +29,7 @@ public class MainWindow implements Initializable {
     public VBox messagesFilesVBox;
 
     private static App app;
+    public TextField messageTextField;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -38,9 +40,7 @@ public class MainWindow implements Initializable {
             for (var channel: app.getChannels()) {
                 updateChannelList(channel);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -73,7 +73,6 @@ public class MainWindow implements Initializable {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-
     }
 
     private void updateChannelList(Channel channel) {
@@ -83,12 +82,20 @@ public class MainWindow implements Initializable {
 
         Label label = new Label(channel.name);
         label.setOnMouseClicked(event -> {
-            channelListOnClick(channel.name);
+            try {
+                channelListOnClick(channel.name);
+                app.setSelectedChannel(channel);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         });
         box.getChildren().add(label);
         if (channel.creatorId == app.getUser().id){
             ImageView image = new ImageView("//Images//gear.png");
             image.setOnMouseClicked(event -> {
+                app.setSelectedChannel(channel);
                 openEditChannel();
             });
             box.getChildren().add(image);
@@ -97,10 +104,9 @@ public class MainWindow implements Initializable {
         channelsVBox.getChildren().add(box);
     }
 
-    private void channelListOnClick(String name) {
+    private void channelListOnClick(String name) throws IOException, InterruptedException {
         //TODO FAZER ISTO
-        //selcionar este canal, pedir as mensagens e depois adicionar as mensgaem no ecra
-
+        app.sendAndReceive(Constants.GET_MESSAGES,app.getSelectedChannel().id);
 
     }
 
@@ -116,4 +122,21 @@ public class MainWindow implements Initializable {
     public void aboutMenuItem(ActionEvent actionEvent) {
     }
 
+    public void SendButton(ActionEvent actionEvent) {
+        //Message message = new Message();
+        /*try {
+            Command command = app.sendAndReceive(Constants.NEW_CHANNEL, channel);
+            if (command.protocol.equals(Constants.ERROR)){
+                app.openMessageDialog(Alert.AlertType.ERROR,"Channel Creation", (String) command.extras);
+            }else {
+                updateChannelList(channel);
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }*/
+    }
+
+    public void SendFileButton(ActionEvent actionEvent) {
+
+    }
 }
