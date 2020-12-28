@@ -36,7 +36,6 @@ public class ClientThread extends Thread {
 			
 			while (true) {
 				Command command = queue.take();
-				System.out.println(command);
 				handleCommand(command);
 			}
 		} catch (Exception e) {
@@ -61,7 +60,7 @@ public class ClientThread extends Thread {
 					case Constants.NEW_CHANNEL -> protocolNewChannel((Channel) command.extras);
 					case Constants.GET_MESSAGES -> protocolGetMessages((int) command.extras);
 					case Constants.NEW_MESSAGE -> protocolNewMessage((Message) command.extras);
-					case Constants.DOWNLOAD_MESSAGES -> protocolDownloadMessage((int) command.extras);
+					case Constants.DOWNLOAD_FILE -> protocolDownloadMessage((int) command.extras);
 					case Constants.EDIT_CHANNEL -> protocolEditChannel((ChannelEditor) command.extras);
 					case Constants.DELETE_CHANNEL -> protocolDeleteChannel((int) command.extras);
 					case Constants.EDIT_CHANNEL_GET_USERS -> protocolEditChannelGetUsers((int) command.extras);
@@ -216,14 +215,14 @@ public class ClientThread extends Thread {
 					int readAmount = fis.read(bytes);
 					if (readAmount <= 0) {
 						fileBlock.bytes = new byte[0];
-						sendCommand(Constants.DOWNLOAD_MESSAGES, fileBlock);
+						sendCommand(Constants.FILE_BLOCK, fileBlock);
 						fis.close();
 						break;
 					}
 					if (readAmount < fileBlock.bytes.length) {
 						fileBlock.bytes = Arrays.copyOfRange(bytes, 0, readAmount);
 					}
-					sendCommand(Constants.DOWNLOAD_MESSAGES, fileBlock);
+					sendCommand(Constants.FILE_BLOCK, fileBlock);
 					fileBlock.bytes = bytes;
 				}
 				app.sendToAll(Constants.NEW_MESSAGE, message);
