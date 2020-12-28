@@ -1,17 +1,18 @@
 package pt.isec;
 
+import com.sun.nio.sctp.MessageInfo;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -20,6 +21,7 @@ import javax.print.attribute.standard.NumberUp;
 //import java.awt.*;
 import java.io.*;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -85,8 +87,8 @@ public class MainWindow implements Initializable {
         Label label = new Label(channel.name);
         label.setOnMouseClicked(event -> {
             try {
-                channelListOnClick(channel.name);
                 app.setSelectedChannel(channel);
+                channelListOnClick(channel.name);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {
@@ -108,8 +110,60 @@ public class MainWindow implements Initializable {
 
     private void channelListOnClick(String name) throws IOException, InterruptedException {
         //TODO FAZER ISTO
-        app.sendAndReceive(Constants.GET_MESSAGES,app.getSelectedChannel().id);
+        Command command = app.sendAndReceive(Constants.GET_MESSAGES, app.getSelectedChannel().id);
+        if (!command.protocol.equals(Constants.SUCCESS)){
+            return;
+        }
+        updateMessageList((ArrayList<Message>) command.extras);
 
+    }
+
+    private void updateMessageList(ArrayList<Message> messages) {
+        messagesFilesVBox.getChildren().clear();
+        for (var message: messages) {
+            messagesFilesVBox.getChildren().add(insertLine(message));
+        }
+    }
+
+    private HBox insertLine(Message message) {
+        HBox box = new HBox();
+        box.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        box.setFillHeight(true);
+
+        Label label = new Label(message.content);
+        if (app.getUser().id != message.senderId) {
+            Label usernameLabel = new Label(message.senderUsername + ": ");
+            usernameLabel.setTextFill(Color.web("#7D82B8"));
+            box.getChildren().add(usernameLabel);
+            box.setAlignment(Pos.BASELINE_LEFT);
+        } else {
+            box.setAlignment(Pos.BASELINE_RIGHT);
+        }
+        Button downloadBtn = null;
+        if (message.type.equals(Message.TYPE_FILE)) {
+            downloadBtn = new Button();
+            //TODO METER IMAGEM NO BUTTON
+            downloadBtn.setOnAction(event -> {
+                DirectoryChooser directoryChooser = new DirectoryChooser();
+                File fileDirectory = directoryChooser.showDialog(app.getStage());
+                if (fileDirectory == null){
+                    return;
+                }
+                try {
+                    app.downloadFile(message, fileDirectory.getAbsolutePath());
+                } catch (IOException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+
+        }
+
+
+        box.getChildren().add(label);
+        if (downloadBtn != null){
+            box.getChildren().add(downloadBtn);
+        }
+        return box;
     }
 
 
@@ -171,14 +225,14 @@ public class MainWindow implements Initializable {
                             int readAmount = fIS.read(bytes);
                             if (readAmount <= 0) {
                                 fileBlock.bytes = new byte[0];
-                                app.sendCommand(Constants.DOWNLOAD_MESSAGES, fileBlock);
+                                app.sendCommand(Constants.FILE_BLOCK, fileBlock);
                                 fIS.close();
                                 break;
                             }
                             if (readAmount < fileBlock.bytes.length) {
                                 fileBlock.bytes = Arrays.copyOfRange(bytes, 0, readAmount);
                             }
-                            app.sendCommand(Constants.DOWNLOAD_MESSAGES, fileBlock);
+                            app.sendCommand(Constants.FILE_BLOCK, fileBlock);
                             fileBlock.bytes = bytes;
                         }
                     }

@@ -137,11 +137,14 @@ public class App extends Application {
         this.selectedChannel = selectedChannel;
     }
 
-    public void downloadFile() {
+    public void downloadFile(Message message, String absolutePath) throws IOException, InterruptedException {
+        //TODO
+        Command command = sendAndReceive(Constants.DOWNLOAD_FILE, message.content);
 
     }
 
     public void uploadFile() {
+        //TODO MOVE CODE
 
     }
 
