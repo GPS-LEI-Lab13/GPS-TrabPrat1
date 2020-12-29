@@ -45,7 +45,7 @@ public class MainWindow implements Initializable {
 			var channel = channels.get(0);
 			app.setSelectedChannel(channel);
 			updateChannelList();
-			channelListOnClick(channel.name);
+			channelListOnClick();
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -106,6 +106,7 @@ public class MainWindow implements Initializable {
 	}
 	
 	private void updateChannelList() {
+		channelsVBox.getChildren().clear();
 		for (Channel channel : app.getChannels()) {
 			
 			HBox box = new HBox();
@@ -119,7 +120,7 @@ public class MainWindow implements Initializable {
 			label.setOnMouseClicked(event -> {
 				try {
 					app.setSelectedChannel(channel);
-					channelListOnClick(channel.name);
+					channelListOnClick();
 				} catch (IOException | InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -139,7 +140,7 @@ public class MainWindow implements Initializable {
 		}
 	}
 	
-	private void channelListOnClick(String name) throws IOException, InterruptedException {
+	private void channelListOnClick() throws IOException, InterruptedException {
 		Command command = app.sendAndReceive(Constants.GET_MESSAGES, app.getSelectedChannel().id);
 		if (!command.protocol.equals(Constants.SUCCESS)) {
 			return;
