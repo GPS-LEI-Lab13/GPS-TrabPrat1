@@ -12,10 +12,13 @@ import pt.isec.Channel;
 import pt.isec.MainReceiver;
 import pt.isec.User;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
@@ -142,8 +145,44 @@ public class App extends Application {
 
     }
 
-    public void uploadFile() {
-        //TODO MOVE CODE
+    public void uploadFile(File file) {
+        Message message = new Message(0, user.id, selectedChannel.id, Message.TYPE_FILE, file.getName(),0, user.username);
+        message.content = Utils.addTimestampFileName(message.content);
+        try {
+            Thread td = new Thread(()->{
+                try {
+                    Command command = sendAndReceive(Constants.NEW_MESSAGE, message);
+                    if (command.protocol.equals(Constants.ERROR)){
+                        openMessageDialog(Alert.AlertType.ERROR, "Error Dialog", command.extras.toString());
+                        return;
+                    }else{
+                        FileBlock fileBlock = new FileBlock(Constants.UPLOAD_IDENTIFIER + message.content);
+                        var bytes = fileBlock.bytes;
+                        FileInputStream fIS = new FileInputStream(file);
+                        while (true){
+                            int readAmount = fIS.read(bytes);
+                            if (readAmount <= 0) {
+                                fileBlock.bytes = new byte[0];
+                                sendCommand(Constants.FILE_BLOCK, fileBlock);
+                                fIS.close();
+                                break;
+                            }
+                            if (readAmount < fileBlock.bytes.length) {
+                                fileBlock.bytes = Arrays.copyOfRange(bytes, 0, readAmount);
+                            }
+                            sendCommand(Constants.FILE_BLOCK, fileBlock);
+                            fileBlock.bytes = bytes;
+                        }
+                    }
+                } catch (IOException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+            td.setDaemon(true);
+            td.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
