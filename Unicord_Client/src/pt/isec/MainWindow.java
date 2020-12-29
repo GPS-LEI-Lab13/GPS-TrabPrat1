@@ -126,14 +126,13 @@ public class MainWindow implements Initializable {
 			});
 			box.getChildren().add(label);
 			if (channel.creatorId == app.getUser().id) {
-				ImageView image = new ImageView("Images/gear.png");
+				ImageView image = new ImageView(getClass().getResource("Images/gear.png").toExternalForm());
 				image.setOnMouseClicked(event -> {
 					app.setSelectedChannel(channel);
 					openEditChannel();
 				});
 				box.getChildren().add(image);
 			}
-			
 			channelsVBox.getChildren().add(box);
 		}
 	}
