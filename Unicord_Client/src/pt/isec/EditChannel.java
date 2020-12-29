@@ -47,7 +47,7 @@ public class EditChannel implements Initializable {
         for (var user : users) {
             HBox hBox = new HBox();
             Label label = new Label(user);
-            ImageView imageView = new ImageView(bool ? "Images/delete_user.png" : "Images/add_user.png");
+            ImageView imageView = new ImageView(bool ? getClass().getResource("Images/delete_user.png").toExternalForm() : getClass().getResource("Images/add_user.png").toExternalForm());
             if (bool){
                 imageView.setOnMouseClicked(event -> {
                     vBox.getChildren().add(label);
