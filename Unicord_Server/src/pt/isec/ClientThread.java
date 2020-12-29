@@ -247,7 +247,6 @@ public class ClientThread extends Thread {
 			return;
 		}
 		sendCommand(Constants.SUCCESS, null);
-		app.sendToAll(Constants.NEW_CHANNEL, channel);
 	}
 	
 	private void protocolEditChannel(ChannelEditor channelChanges) throws IOException, SQLException {
@@ -267,9 +266,9 @@ public class ClientThread extends Thread {
 		if (channelChanges.usersIn != null) {
 			for (var username : channelChanges.usersIn) {
 				User user = app.database.User.getByUsername(username);
-				
 				if (!app.database.Channel.addUser(user.id, channel.id)) {
 					sendCommand(Constants.ERROR, "Something went wrong");
+					// TODO warn user that he became part of channel
 					return;
 				}
 			}
@@ -280,6 +279,7 @@ public class ClientThread extends Thread {
 				
 				if (!app.database.Channel.removeUser(user.id, channel.id)) {
 					sendCommand(Constants.ERROR, "Something went wrong");
+					// TODO warn user that he gone form channel
 					return;
 				}
 			}

@@ -37,6 +37,8 @@ public class MainWindow implements Initializable {
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		//TODO fix window resize
+		
 		app = App.getApp();
 		try {
 			Command command = app.sendAndReceive(Constants.GET_CHANNELS, null);
@@ -75,7 +77,10 @@ public class MainWindow implements Initializable {
 						case Constants.DELETE_CHANNEL -> {
 							Channel channel = (Channel) command.extras;
 							app.getChannels().remove(channel);
-							Platform.runLater(() -> updateChannelList());
+							Platform.runLater(() -> {
+								updateChannelList();
+								app.setSelectedChannel(app.getChannels().get(0));
+							});
 						}
 						case Constants.NEW_MESSAGE -> {
 							Message message = (Message) command.extras;

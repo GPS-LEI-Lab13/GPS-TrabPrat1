@@ -57,7 +57,7 @@ public class Database {
 			statement.setString(4, message.type);
 			statement.setString(5, message.content);
 			boolean success = statement.executeUpdate() == 1;
-			if(success){
+			if (success) {
 				message.id = tempId;
 			}
 			return success;
@@ -126,7 +126,8 @@ public class Database {
 			return User.parse(statement.executeQuery());
 		}
 		
-		public boolean isUserPartOfChannel(int userId,int channelId) throws SQLException{
+		public boolean isUserPartOfChannel(int userId, int channelId) throws SQLException {
+			if (getByID(channelId).creatorId == userId) return true;
 			String select = "select count(user_id) from channel_user where user_id = ? and channel_id = ?";
 			PreparedStatement statement = connection.prepareStatement(select);
 			statement.setInt(1, userId);
