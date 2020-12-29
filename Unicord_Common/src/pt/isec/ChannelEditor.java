@@ -1,8 +1,9 @@
 package pt.isec;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ChannelEditor {
+public class ChannelEditor implements Serializable {
 	
 	public final int channelId;
 	public String name;
