@@ -51,7 +51,6 @@ public class MainWindow implements Initializable {
         }
     }
 
-
     public void createMenuItem(ActionEvent actionEvent) {
         //dialog Create Channel
         try {
@@ -65,20 +64,6 @@ public class MainWindow implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        /*String name = "";
-        int creatorId = App.getApp().getUser().id;
-        Channel channel = new Channel(creatorId, name);
-        try {
-            Command command = app.sendAndReceive(Constants.NEW_CHANNEL, channel);
-            if (command.protocol.equals(Constants.ERROR)){
-                app.openMessageDialog(Alert.AlertType.ERROR,"Channel Creation", (String) command.extras);
-            }else {
-                updateChannelList(channel);
-            }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }*/
     }
 
     private void updateChannelList(Channel channel) {
@@ -181,6 +166,10 @@ public class MainWindow implements Initializable {
     }
 
     public void SendButton(ActionEvent actionEvent) {
+        if (app.getSelectedChannel() == null) {
+            app.openMessageDialog(Alert.AlertType.ERROR, "Error Dialog", "Select a channel to send a message!");
+            return;
+        }
         String message_text = messageTextField.getText();
         Message message = new Message(0, app.getUser().id, app.getSelectedChannel().id, Message.TYPE_TEXT, message_text,0, app.getUser().username);
         try {

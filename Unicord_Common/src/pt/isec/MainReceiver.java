@@ -11,9 +11,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class MainReceiver extends Thread {
 	
-	private Socket socket;
-	private ObjectInputStream ois;
-	private List<BlockingQueue<Command>> list;
+	private final Socket socket;
+	private final ObjectInputStream ois;
+	private final List<BlockingQueue<Command>> list;
 	
 	public MainReceiver(Socket socket) throws IOException {
 		this.socket = socket;
@@ -27,7 +27,9 @@ public class MainReceiver extends Thread {
 			while (true) {
 				
 				Command command = (Command) ois.readObject();
-				System.out.println(command);
+				if (!command.protocol.equals(Constants.FILE_BLOCK)) {
+					System.out.println(command);
+				}
 				for (var queue : list) {
 					queue.offer(command);
 				}
@@ -43,7 +45,7 @@ public class MainReceiver extends Thread {
 		list.add(queue);
 		return queue;
 	}
-
+	
 	public boolean removeListener(BlockingQueue<Command> queue) {
 		return list.remove(queue);
 	}

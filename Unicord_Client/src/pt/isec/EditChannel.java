@@ -31,7 +31,7 @@ public class EditChannel implements Initializable {
         try {
             Command command = app.sendAndReceive(Constants.EDIT_CHANNEL_GET_USERS, app.getSelectedChannel().id); //TODO Check problems
             if (command.protocol.equals(Constants.ERROR)){
-                app.openMessageDialog(Alert.AlertType.ERROR,"Channel Creation", (String) command.extras);
+                app.openMessageDialog(Alert.AlertType.ERROR,"Channel Editing", (String) command.extras);
             }else {
                 channelEditor = (ChannelEditor) command.extras;
                 usernameTextField1.setText(channelEditor.name);
@@ -50,11 +50,11 @@ public class EditChannel implements Initializable {
             ImageView imageView = new ImageView(bool ? "Images/delete_user.png" : "Images/add_user.png");
             if (bool){
                 imageView.setOnMouseClicked(event -> {
-
+                    vBox.getChildren().add(label);
                 });
             }else{
                 imageView.setOnMouseClicked(event -> {
-
+                    vBox.getChildren().add(label);
                 });
             }
             hBox.getChildren().addAll(label, imageView);
