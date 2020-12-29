@@ -16,8 +16,10 @@ public class MainReceiver extends Thread {
 	private final Socket socket;
 	private final ObjectInputStream ois;
 	private final List<BlockingQueue<Command>> list;
+	private final ClientThread creator;
 	
-	public MainReceiver(Socket socket) throws IOException {
+	public MainReceiver(ClientThread creator,Socket socket) throws IOException {
+		this.creator = creator;
 		this.socket = socket;
 		this.ois = new ObjectInputStream(socket.getInputStream());
 		this.list = Collections.synchronizedList(new ArrayList<>());
@@ -30,13 +32,14 @@ public class MainReceiver extends Thread {
 				
 				Command command = (Command) ois.readObject();
 				if (!command.protocol.equals(Constants.FILE_BLOCK)) {
-					System.out.println(command);
+					System.out.println("Received: " + command);
 				}
 				for (var queue : list) {
 					queue.offer(command);
 				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
+			MainServer.getInstance().removeClient(creator);
 			System.out.println("Exception" + e.getMessage());
 		}
 	}

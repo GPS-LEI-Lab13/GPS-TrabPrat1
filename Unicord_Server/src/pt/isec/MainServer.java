@@ -46,6 +46,7 @@ public class MainServer extends Thread {
 	}
 	
 	public void sendToAll(String protocol, Object extras) throws IOException {
+		System.out.println("Send to all : " + new Command(protocol, extras));
 		for (var client : clients) {
 			client.sendCommand(protocol, extras);
 		}
@@ -57,5 +58,9 @@ public class MainServer extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void removeClient(ClientThread client){
+		clients.remove(client);
 	}
 }

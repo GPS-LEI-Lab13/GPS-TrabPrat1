@@ -1,14 +1,15 @@
 package pt.isec;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -39,8 +40,12 @@ public class MainWindow implements Initializable {
 		app = App.getApp();
 		try {
 			Command command = app.sendAndReceive(Constants.GET_CHANNELS, null);
-			app.setChannels((List<Channel>) command.extras);
+			var channels = (List<Channel>) command.extras;
+			app.setChannels(channels);
+			var channel = channels.get(0);
+			app.setSelectedChannel(channel);
 			updateChannelList();
+			channelListOnClick(channel.name);
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -54,28 +59,28 @@ public class MainWindow implements Initializable {
 				
 				while (true) {
 					Command command = objectQueue.take();
-					
+					System.out.println("GetUpdates : " + command);
 					switch (command.protocol) {
 						case Constants.NEW_CHANNEL -> {
 							Channel channel = (Channel) command.extras;
 							app.getChannels().add(channel);
-							updateChannelList();
+							Platform.runLater(() -> updateChannelList());
 						}
 						case Constants.EDIT_CHANNEL -> {
 							Channel channel = (Channel) command.extras;
 							app.getChannels().remove(channel);
 							app.getChannels().add(channel);
-							updateChannelList();
+							Platform.runLater(() -> updateChannelList());
 						}
 						case Constants.DELETE_CHANNEL -> {
 							Channel channel = (Channel) command.extras;
 							app.getChannels().remove(channel);
-							updateChannelList();
+							Platform.runLater(() -> updateChannelList());
 						}
 						case Constants.NEW_MESSAGE -> {
 							Message message = (Message) command.extras;
 							messages.add(message);
-							insertLine(message);
+							Platform.runLater(() -> messagesFilesVBox.getChildren().add(insertLine(message)));
 						}
 					}
 				}
@@ -84,7 +89,6 @@ public class MainWindow implements Initializable {
 			}
 		}).start();
 	}
-	
 	
 	public void createMenuItem(ActionEvent actionEvent) {
 		//dialog Create Channel
@@ -99,30 +103,19 @@ public class MainWindow implements Initializable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-        /*String name = "";
-        int creatorId = App.getApp().getUser().id;
-        Channel channel = new Channel(creatorId, name);
-        try {
-            Command command = app.sendAndReceive(Constants.NEW_CHANNEL, channel);
-            if (command.protocol.equals(Constants.ERROR)){
-                app.openMessageDialog(Alert.AlertType.ERROR,"Channel Creation", (String) command.extras);
-            }else {
-                updateChannelList(channel);
-            }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }*/
 	}
 	
 	private void updateChannelList() {
 		for (Channel channel : app.getChannels()) {
 			
 			HBox box = new HBox();
-			box.setPrefWidth(Region.USE_COMPUTED_SIZE);
 			box.setFillHeight(true);
 			
 			Label label = new Label(channel.name);
+			if (channel.id == app.getSelectedChannel().id) {
+				box.setStyle("-fx-background-color: cyan;");
+			}
+			
 			label.setOnMouseClicked(event -> {
 				try {
 					app.setSelectedChannel(channel);
@@ -135,7 +128,7 @@ public class MainWindow implements Initializable {
 			if (channel.creatorId == app.getUser().id) {
 				ImageView image = new ImageView("Images/gear.png");
 				image.setOnMouseClicked(event -> {
-					app.setSelectedChannel(channel); //TODO Check problems
+					app.setSelectedChannel(channel);
 					openEditChannel();
 				});
 				box.getChildren().add(image);
@@ -146,16 +139,15 @@ public class MainWindow implements Initializable {
 	}
 	
 	private void channelListOnClick(String name) throws IOException, InterruptedException {
-		//TODO FAZER ISTO
 		Command command = app.sendAndReceive(Constants.GET_MESSAGES, app.getSelectedChannel().id);
 		if (!command.protocol.equals(Constants.SUCCESS)) {
 			return;
 		}
-		
-		updateMessageList((ArrayList<Message>) command.extras);
+		messages = (ArrayList<Message>) command.extras;
+		updateMessageList(messages);
 	}
 	
-	private void updateMessageList(ArrayList<Message> messages) {
+	private void updateMessageList(List<Message> messages) {
 		messagesFilesVBox.getChildren().clear();
 		for (var message : messages) {
 			messagesFilesVBox.getChildren().add(insertLine(message));
@@ -164,10 +156,10 @@ public class MainWindow implements Initializable {
 	
 	private HBox insertLine(Message message) {
 		HBox box = new HBox();
-		box.setPrefWidth(Region.USE_COMPUTED_SIZE);
 		box.setFillHeight(true);
 		
 		Label label = new Label(message.content);
+		
 		if (app.getUser().id != message.senderId) {
 			Label usernameLabel = new Label(message.senderUsername + ": ");
 			usernameLabel.setTextFill(Color.web("#7D82B8"));
@@ -192,9 +184,7 @@ public class MainWindow implements Initializable {
 					e.printStackTrace();
 				}
 			});
-			
 		}
-		
 		
 		box.getChildren().add(label);
 		if (downloadBtn != null) {
@@ -202,7 +192,6 @@ public class MainWindow implements Initializable {
 		}
 		return box;
 	}
-	
 	
 	private void openEditChannel() {
 		try {
@@ -222,12 +211,21 @@ public class MainWindow implements Initializable {
 	}
 	
 	public void SendButton(ActionEvent actionEvent) {
-		String message_text = messageTextField.getText();
-		Message message = new Message(0, app.getUser().id, app.getSelectedChannel().id, Message.TYPE_TEXT, message_text, 0, app.getUser().username);
+		String messageText = messageTextField.getText();
+		if (messageText.isBlank()) return;
+		messageTextField.setText("");
+		Message message = new Message(0, app.getUser().id, app.getSelectedChannel().id, Message.TYPE_TEXT, messageText, 0, app.getUser().username);
 		try {
 			Thread td = new Thread(() -> {
 				try {
 					app.sendCommand(Constants.NEW_MESSAGE, message);
+					//Command command = app.sendAndReceive(Constants.NEW_MESSAGE, message);
+					/*if (command.protocol.equals(Constants.SUCCESS)) {
+						message.senderUsername = app.getUser().username;
+						messagesFilesVBox.getChildren().add(insertLine(message));
+					} else {
+						System.out.println("?¿Erro a enviar mensagem?¿");
+					}*/
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -251,42 +249,12 @@ public class MainWindow implements Initializable {
 		if (file == null) {
 			return;
 		}
-		Message message = new Message(0, app.getUser().id, app.getSelectedChannel().id, Message.TYPE_FILE, file.getName(), 0, app.getUser().username);
-		message.content = Utils.addTimestampFileName(message.content);
-		try {
-			Thread td = new Thread(() -> {
-				try {
-					Command command = app.sendAndReceive(Constants.NEW_MESSAGE, message);
-					if (command.protocol.equals(Constants.ERROR)) {
-						app.openMessageDialog(Alert.AlertType.ERROR, "Error Dialog", command.extras.toString());
-						return;
-					} else {
-						FileBlock fileBlock = new FileBlock(Constants.UPLOAD_IDENTIFIER + message.content);
-						var bytes = fileBlock.bytes;
-						FileInputStream fIS = new FileInputStream(file);
-						while (true) {
-							int readAmount = fIS.read(bytes);
-							if (readAmount <= 0) {
-								fileBlock.bytes = new byte[0];
-								app.sendCommand(Constants.FILE_BLOCK, fileBlock);
-								fIS.close();
-								break;
-							}
-							if (readAmount < fileBlock.bytes.length) {
-								fileBlock.bytes = Arrays.copyOfRange(bytes, 0, readAmount);
-							}
-							app.sendCommand(Constants.FILE_BLOCK, fileBlock);
-							fileBlock.bytes = bytes;
-						}
-					}
-				} catch (IOException | InterruptedException e) {
-					e.printStackTrace();
-				}
-			});
-			td.setDaemon(true);
-			td.start();
-		} catch (Exception e) {
-			e.printStackTrace();
+		app.uploadFile(file);
+	}
+	
+	public void onEnterPressed(KeyEvent keyEvent) {
+		if (keyEvent.getCode() == KeyCode.ENTER) {
+			SendButton(null);
 		}
 	}
 }

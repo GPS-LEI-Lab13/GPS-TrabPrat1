@@ -30,7 +30,7 @@ public class ClientThread extends Thread {
 		BlockingQueue<Command> queue = null;
 		try {
 			this.oos = new ObjectOutputStream(socket.getOutputStream());
-			this.receiver = new MainReceiver(socket);
+			this.receiver = new MainReceiver(this, socket);
 			this.receiver.start();
 			queue = receiver.addListener();
 			
@@ -121,7 +121,7 @@ public class ClientThread extends Thread {
 		}
 		// se estiver guardar o utilizador neste objeto
 		this.user = app.database.User.getByUsername(user.username);
-		sendCommand(Constants.SUCCESS, null);
+		sendCommand(Constants.SUCCESS, this.user);
 	}
 	
 	private void protocolLogout() throws IOException {
@@ -149,7 +149,9 @@ public class ClientThread extends Thread {
 			sendCommand(Constants.ERROR, "Server Error");
 			return;
 		}
-		if (message.type.equals(Message.TYPE_FILE)) {
+		if (message.type.equals(Message.TYPE_TEXT)) {
+			app.sendToAll(Constants.NEW_MESSAGE, message);
+		} else {
 			BlockingQueue<Command> commandQueue = receiver.addListener();
 			sendCommand(Constants.SUCCESS, null);
 			new Thread(() -> {
@@ -178,8 +180,6 @@ public class ClientThread extends Thread {
 				
 				receiver.removeListener(commandQueue);
 			}).start();
-		} else {
-			app.sendToAll(Constants.NEW_MESSAGE, message);
 		}
 	}
 	
