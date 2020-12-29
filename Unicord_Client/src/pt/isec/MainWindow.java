@@ -1,12 +1,10 @@
 package pt.isec;
 
-import com.sun.nio.sctp.MessageInfo;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -17,52 +15,90 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import javax.print.attribute.standard.NumberUp;
-//import java.awt.*;
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.BlockingQueue;
 
 public class MainWindow implements Initializable {
-    public ScrollPane channelsScrollPane;
-    public ScrollPane messageFileScrollPane;
-    public VBox channelsVBox;
-    public VBox messagesFilesVBox;
-
-    private static App app;
-    public TextField messageTextField;
-
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        app = App.getApp();
-        try {
-            Command command = app.sendAndReceive(Constants.GET_CHANNELS, null);
-            app.setChannels((List<Channel>) command.extras);
-            for (var channel: app.getChannels()) {
-                updateChannelList(channel);
-            }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public void createMenuItem(ActionEvent actionEvent) {
-        //dialog Create Channel
-        try {
-            Stage createChannel = new Stage();
-            createChannel.initModality(Modality.APPLICATION_MODAL);
-            createChannel.setTitle("Unicord - Create channel");
-            Scene cC = new Scene(app.loadFxml("fxml/CreateChannel.fxml"));
-            createChannel.setScene(cC);
-            createChannel.setResizable(false);
-            createChannel.showAndWait();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+	public ScrollPane channelsScrollPane;
+	public ScrollPane messageFileScrollPane;
+	public VBox channelsVBox;
+	public VBox messagesFilesVBox;
+	
+	private static App app;
+	public TextField messageTextField;
+	
+	private List<Message> messages = new ArrayList<>();
+	
+	@Override
+	public void initialize(URL location, ResourceBundle resources) {
+		app = App.getApp();
+		try {
+			Command command = app.sendAndReceive(Constants.GET_CHANNELS, null);
+			app.setChannels((List<Channel>) command.extras);
+			updateChannelList();
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+		}
+		getUpdates();
+	}
+	
+	public void getUpdates() {
+		new Thread(() -> {
+			try {
+				BlockingQueue<Command> objectQueue = app.getReceivedObjectQueue();
+				
+				while (true) {
+					Command command = objectQueue.take();
+					
+					switch (command.protocol) {
+						case Constants.NEW_CHANNEL -> {
+							Channel channel = (Channel) command.extras;
+							app.getChannels().add(channel);
+							updateChannelList();
+						}
+						case Constants.EDIT_CHANNEL -> {
+							Channel channel = (Channel) command.extras;
+							app.getChannels().remove(channel);
+							app.getChannels().add(channel);
+							updateChannelList();
+						}
+						case Constants.DELETE_CHANNEL -> {
+							Channel channel = (Channel) command.extras;
+							app.getChannels().remove(channel);
+							updateChannelList();
+						}
+						case Constants.NEW_MESSAGE -> {
+							Message message = (Message) command.extras;
+							messages.add(message);
+							insertLine(message);
+						}
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}).start();
+	}
+	
+	
+	public void createMenuItem(ActionEvent actionEvent) {
+		//dialog Create Channel
+		try {
+			Stage createChannel = new Stage();
+			createChannel.initModality(Modality.APPLICATION_MODAL);
+			createChannel.setTitle("Unicord - Create channel");
+			Scene cC = new Scene(app.loadFxml("fxml/CreateChannel.fxml"));
+			createChannel.setScene(cC);
+			createChannel.setResizable(false);
+			createChannel.showAndWait();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
         /*String name = "";
         int creatorId = App.getApp().getUser().id;
@@ -77,173 +113,180 @@ public class MainWindow implements Initializable {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }*/
-    }
-
-    private void updateChannelList(Channel channel) {
-        HBox box = new HBox();
-        box.setPrefWidth(Region.USE_COMPUTED_SIZE);
-        box.setFillHeight(true);
-
-        Label label = new Label(channel.name);
-        label.setOnMouseClicked(event -> {
-            try {
-                app.setSelectedChannel(channel);
-                channelListOnClick(channel.name);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-        box.getChildren().add(label);
-        if (channel.creatorId == app.getUser().id){
-            ImageView image = new ImageView("Images/gear.png");
-            image.setOnMouseClicked(event -> {
-                app.setSelectedChannel(channel); //TODO Check problems
-                openEditChannel();
-            });
-            box.getChildren().add(image);
-        }
-
-        channelsVBox.getChildren().add(box);
-    }
-
-    private void channelListOnClick(String name) throws IOException, InterruptedException {
-        //TODO FAZER ISTO
-        Command command = app.sendAndReceive(Constants.GET_MESSAGES, app.getSelectedChannel().id);
-        if (!command.protocol.equals(Constants.SUCCESS)){
-            return;
-        }
-        updateMessageList((ArrayList<Message>) command.extras);
-
-    }
-
-    private void updateMessageList(ArrayList<Message> messages) {
-        messagesFilesVBox.getChildren().clear();
-        for (var message: messages) {
-            messagesFilesVBox.getChildren().add(insertLine(message));
-        }
-    }
-
-    private HBox insertLine(Message message) {
-        HBox box = new HBox();
-        box.setPrefWidth(Region.USE_COMPUTED_SIZE);
-        box.setFillHeight(true);
-
-        Label label = new Label(message.content);
-        if (app.getUser().id != message.senderId) {
-            Label usernameLabel = new Label(message.senderUsername + ": ");
-            usernameLabel.setTextFill(Color.web("#7D82B8"));
-            box.getChildren().add(usernameLabel);
-            box.setAlignment(Pos.BASELINE_LEFT);
-        } else {
-            box.setAlignment(Pos.BASELINE_RIGHT);
-        }
-        Button downloadBtn = null;
-        if (message.type.equals(Message.TYPE_FILE)) {
-            downloadBtn = new Button();
-            //TODO METER IMAGEM NO BUTTON
-            downloadBtn.setOnAction(event -> {
-                DirectoryChooser directoryChooser = new DirectoryChooser();
-                File fileDirectory = directoryChooser.showDialog(app.getStage());
-                if (fileDirectory == null){
-                    return;
-                }
-                try {
-                    app.downloadFile(message, fileDirectory.getAbsolutePath());
-                } catch (IOException | InterruptedException e) {
-                    e.printStackTrace();
-                }
-            });
-
-        }
-
-
-        box.getChildren().add(label);
-        if (downloadBtn != null){
-            box.getChildren().add(downloadBtn);
-        }
-        return box;
-    }
-
-
-    private void openEditChannel() {
-        try {
-            app.setWindowRoot("EditChannel.fxml");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void aboutMenuItem(ActionEvent actionEvent) {
-    }
-
-    public void SendButton(ActionEvent actionEvent) {
-        String message_text = messageTextField.getText();
-        Message message = new Message(0, app.getUser().id, app.getSelectedChannel().id, Message.TYPE_TEXT, message_text,0, app.getUser().username);
-        try {
-            Thread td = new Thread(()->{
-                try {
-                    app.sendCommand(Constants.NEW_MESSAGE, message);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-            td.setDaemon(true);
-            td.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void SendFileButton(ActionEvent actionEvent) {
-        App app = App.getApp();
-        if (app.getSelectedChannel() == null) {
-            app.openMessageDialog(Alert.AlertType.ERROR, "Error Dialog", "Select a channel to send a file!");
-            return;
-        }
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select the file");
-        File file = fileChooser.showOpenDialog(app.getStage());
-        if(file == null){
-            return;
-        }
-        Message message = new Message(0, app.getUser().id, app.getSelectedChannel().id, Message.TYPE_FILE, file.getName(),0, app.getUser().username);
-        message.content = Utils.addTimestampFileName(message.content);
-        try {
-            Thread td = new Thread(()->{
-                try {
-                    Command command = app.sendAndReceive(Constants.NEW_MESSAGE, message);
-                    if (command.protocol.equals(Constants.ERROR)){
-                        app.openMessageDialog(Alert.AlertType.ERROR, "Error Dialog", command.extras.toString());
-                        return;
-                    }else{
-                        FileBlock fileBlock = new FileBlock(Constants.UPLOAD_IDENTIFIER + message.content);
-                        var bytes = fileBlock.bytes;
-                        FileInputStream fIS = new FileInputStream(file);
-                        while (true){
-                            int readAmount = fIS.read(bytes);
-                            if (readAmount <= 0) {
-                                fileBlock.bytes = new byte[0];
-                                app.sendCommand(Constants.FILE_BLOCK, fileBlock);
-                                fIS.close();
-                                break;
-                            }
-                            if (readAmount < fileBlock.bytes.length) {
-                                fileBlock.bytes = Arrays.copyOfRange(bytes, 0, readAmount);
-                            }
-                            app.sendCommand(Constants.FILE_BLOCK, fileBlock);
-                            fileBlock.bytes = bytes;
-                        }
-                    }
-                } catch (IOException | InterruptedException e) {
-                    e.printStackTrace();
-                }
-            });
-            td.setDaemon(true);
-            td.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+	}
+	
+	private void updateChannelList() {
+		for (Channel channel : app.getChannels()) {
+			
+			HBox box = new HBox();
+			box.setPrefWidth(Region.USE_COMPUTED_SIZE);
+			box.setFillHeight(true);
+			
+			Label label = new Label(channel.name);
+			label.setOnMouseClicked(event -> {
+				try {
+					app.setSelectedChannel(channel);
+					channelListOnClick(channel.name);
+				} catch (IOException | InterruptedException e) {
+					e.printStackTrace();
+				}
+			});
+			box.getChildren().add(label);
+			if (channel.creatorId == app.getUser().id) {
+				ImageView image = new ImageView("Images/gear.png");
+				image.setOnMouseClicked(event -> {
+					app.setSelectedChannel(channel); //TODO Check problems
+					openEditChannel();
+				});
+				box.getChildren().add(image);
+			}
+			
+			channelsVBox.getChildren().add(box);
+		}
+	}
+	
+	private void channelListOnClick(String name) throws IOException, InterruptedException {
+		//TODO FAZER ISTO
+		Command command = app.sendAndReceive(Constants.GET_MESSAGES, app.getSelectedChannel().id);
+		if (!command.protocol.equals(Constants.SUCCESS)) {
+			return;
+		}
+		
+		updateMessageList((ArrayList<Message>) command.extras);
+	}
+	
+	private void updateMessageList(ArrayList<Message> messages) {
+		messagesFilesVBox.getChildren().clear();
+		for (var message : messages) {
+			messagesFilesVBox.getChildren().add(insertLine(message));
+		}
+	}
+	
+	private HBox insertLine(Message message) {
+		HBox box = new HBox();
+		box.setPrefWidth(Region.USE_COMPUTED_SIZE);
+		box.setFillHeight(true);
+		
+		Label label = new Label(message.content);
+		if (app.getUser().id != message.senderId) {
+			Label usernameLabel = new Label(message.senderUsername + ": ");
+			usernameLabel.setTextFill(Color.web("#7D82B8"));
+			box.getChildren().add(usernameLabel);
+			box.setAlignment(Pos.BASELINE_LEFT);
+		} else {
+			box.setAlignment(Pos.BASELINE_RIGHT);
+		}
+		Button downloadBtn = null;
+		if (message.type.equals(Message.TYPE_FILE)) {
+			downloadBtn = new Button();
+			//TODO METER IMAGEM NO BUTTON
+			downloadBtn.setOnAction(event -> {
+				DirectoryChooser directoryChooser = new DirectoryChooser();
+				File fileDirectory = directoryChooser.showDialog(app.getStage());
+				if (fileDirectory == null) {
+					return;
+				}
+				try {
+					app.downloadFile(message, fileDirectory.getAbsolutePath());
+				} catch (IOException | InterruptedException e) {
+					e.printStackTrace();
+				}
+			});
+			
+		}
+		
+		
+		box.getChildren().add(label);
+		if (downloadBtn != null) {
+			box.getChildren().add(downloadBtn);
+		}
+		return box;
+	}
+	
+	
+	private void openEditChannel() {
+		try {
+			Stage editChannelStage = new Stage();
+			editChannelStage.initModality(Modality.APPLICATION_MODAL);
+			editChannelStage.setTitle("Unicord - Edit channel");
+			Scene cC = new Scene(app.loadFxml("fxml/EditChannel.fxml"));
+			editChannelStage.setScene(cC);
+			editChannelStage.setResizable(false);
+			editChannelStage.showAndWait();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void aboutMenuItem(ActionEvent actionEvent) {
+	}
+	
+	public void SendButton(ActionEvent actionEvent) {
+		String message_text = messageTextField.getText();
+		Message message = new Message(0, app.getUser().id, app.getSelectedChannel().id, Message.TYPE_TEXT, message_text, 0, app.getUser().username);
+		try {
+			Thread td = new Thread(() -> {
+				try {
+					app.sendCommand(Constants.NEW_MESSAGE, message);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+			td.setDaemon(true);
+			td.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void SendFileButton(ActionEvent actionEvent) {
+		App app = App.getApp();
+		if (app.getSelectedChannel() == null) {
+			app.openMessageDialog(Alert.AlertType.ERROR, "Error Dialog", "Select a channel to send a file!");
+			return;
+		}
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Select the file");
+		File file = fileChooser.showOpenDialog(app.getStage());
+		if (file == null) {
+			return;
+		}
+		Message message = new Message(0, app.getUser().id, app.getSelectedChannel().id, Message.TYPE_FILE, file.getName(), 0, app.getUser().username);
+		message.content = Utils.addTimestampFileName(message.content);
+		try {
+			Thread td = new Thread(() -> {
+				try {
+					Command command = app.sendAndReceive(Constants.NEW_MESSAGE, message);
+					if (command.protocol.equals(Constants.ERROR)) {
+						app.openMessageDialog(Alert.AlertType.ERROR, "Error Dialog", command.extras.toString());
+						return;
+					} else {
+						FileBlock fileBlock = new FileBlock(Constants.UPLOAD_IDENTIFIER + message.content);
+						var bytes = fileBlock.bytes;
+						FileInputStream fIS = new FileInputStream(file);
+						while (true) {
+							int readAmount = fIS.read(bytes);
+							if (readAmount <= 0) {
+								fileBlock.bytes = new byte[0];
+								app.sendCommand(Constants.FILE_BLOCK, fileBlock);
+								fIS.close();
+								break;
+							}
+							if (readAmount < fileBlock.bytes.length) {
+								fileBlock.bytes = Arrays.copyOfRange(bytes, 0, readAmount);
+							}
+							app.sendCommand(Constants.FILE_BLOCK, fileBlock);
+							fileBlock.bytes = bytes;
+						}
+					}
+				} catch (IOException | InterruptedException e) {
+					e.printStackTrace();
+				}
+			});
+			td.setDaemon(true);
+			td.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

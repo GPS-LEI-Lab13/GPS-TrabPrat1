@@ -31,4 +31,12 @@ public class Channel implements Serializable {
 				", name='" + name + '\'' +
 				'}';
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Channel user = (Channel) o;
+		return id == user.id;
+	}
 }

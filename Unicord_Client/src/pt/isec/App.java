@@ -42,7 +42,6 @@ public class App extends Application {
         oOS = new ObjectOutputStream(socket.getOutputStream());
         mainReceiver = new MainReceiver(socket);
         mainReceiver.start();
-        System.out.println("mainreceiveer created");
     }
 
 

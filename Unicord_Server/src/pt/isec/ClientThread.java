@@ -98,6 +98,7 @@ public class ClientThread extends Thread {
 		});
 		
 		sendCommand(Constants.SUCCESS, editor);
+		app.sendToAll(Constants.EDIT_CHANNEL, channel);
 	}
 	
 	private void protocolRegister(User user) throws IOException, SQLException {
@@ -188,6 +189,7 @@ public class ClientThread extends Thread {
 			if (app.database.Channel.deleteChannel(channelId)) {
 				currentChannel = -1;
 				sendCommand(Constants.SUCCESS, null);
+				app.sendToAll(Constants.DELETE_CHANNEL, channel);
 			} else {
 				sendCommand(Constants.ERROR, "Could not delete channel!");
 			}
@@ -245,7 +247,7 @@ public class ClientThread extends Thread {
 			return;
 		}
 		sendCommand(Constants.SUCCESS, null);
-		app.sendToAll(Constants.NEW_MESSAGE, channel);
+		app.sendToAll(Constants.NEW_CHANNEL, channel);
 	}
 	
 	private void protocolEditChannel(ChannelEditor channelChanges) throws IOException, SQLException {

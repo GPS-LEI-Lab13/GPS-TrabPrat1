@@ -48,4 +48,12 @@ public class Message implements Serializable {
 				", senderUsername='" + senderUsername + '\'' +
 				'}';
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Message user = (Message) o;
+		return id == user.id;
+	}
 }

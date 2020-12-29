@@ -35,9 +35,8 @@ public class MainReceiver extends Thread {
 				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
+			System.out.println("Exception" + e.getMessage());
 		}
-		System.out.println("Client went down, sad");
 	}
 	
 	public BlockingQueue<Command> addListener() {
