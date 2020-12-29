@@ -8,6 +8,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -208,42 +210,13 @@ public class MainWindow implements Initializable {
         if(file == null){
             return;
         }
-        Message message = new Message(0, app.getUser().id, app.getSelectedChannel().id, Message.TYPE_FILE, file.getName(),0, app.getUser().username);
-        message.content = Utils.addTimestampFileName(message.content);
-        try {
-            Thread td = new Thread(()->{
-                try {
-                    Command command = app.sendAndReceive(Constants.NEW_MESSAGE, message);
-                    if (command.protocol.equals(Constants.ERROR)){
-                        app.openMessageDialog(Alert.AlertType.ERROR, "Error Dialog", command.extras.toString());
-                        return;
-                    }else{
-                        FileBlock fileBlock = new FileBlock(Constants.UPLOAD_IDENTIFIER + message.content);
-                        var bytes = fileBlock.bytes;
-                        FileInputStream fIS = new FileInputStream(file);
-                        while (true){
-                            int readAmount = fIS.read(bytes);
-                            if (readAmount <= 0) {
-                                fileBlock.bytes = new byte[0];
-                                app.sendCommand(Constants.FILE_BLOCK, fileBlock);
-                                fIS.close();
-                                break;
-                            }
-                            if (readAmount < fileBlock.bytes.length) {
-                                fileBlock.bytes = Arrays.copyOfRange(bytes, 0, readAmount);
-                            }
-                            app.sendCommand(Constants.FILE_BLOCK, fileBlock);
-                            fileBlock.bytes = bytes;
-                        }
-                    }
-                } catch (IOException | InterruptedException e) {
-                    e.printStackTrace();
-                }
-            });
-            td.setDaemon(true);
-            td.start();
-        } catch (Exception e) {
-            e.printStackTrace();
+        app.uploadFile(file);
+
+    }
+
+    public void onEnterPressed(KeyEvent keyEvent) {
+        if (keyEvent.getCode() == KeyCode.ENTER){
+            SendButton(null);
         }
     }
 }

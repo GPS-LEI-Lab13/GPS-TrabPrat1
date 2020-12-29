@@ -4,6 +4,8 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -44,6 +46,12 @@ public class Login {
             }
         }else{
             app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, "Username and/or password incorrect!");
+        }
+    }
+
+    public void onEnterPressed(KeyEvent keyEvent) {
+        if (keyEvent.getCode() == KeyCode.ENTER){
+            logInButton(null);
         }
     }
 }
