@@ -126,6 +126,16 @@ public class Database {
 			return User.parse(statement.executeQuery());
 		}
 		
+		public boolean isUserPartOfChannel(int userId,int channelId) throws SQLException{
+			String select = "select count(user_id) from channel_user where user_id = ? and channel_id = ?";
+			PreparedStatement statement = connection.prepareStatement(select);
+			statement.setInt(1, userId);
+			statement.setInt(2, channelId);
+			ResultSet result = statement.executeQuery();
+			result.next();
+			return result.getInt(1) == 1;
+		}
+		
 		public boolean createChannel(Channel channel) throws SQLException {
 			String sql = "insert into channel(id, creator_id, name) values(?, ?, ?) ";
 			PreparedStatement statement = connection.prepareStatement(sql);

@@ -14,7 +14,7 @@
    <children>
       <HBox alignment="CENTER" layoutX="25.0" layoutY="14.0" prefHeight="100.0" prefWidth="650.0">
          <children>
-            <Text fx:id="usernameText2" strokeType="OUTSIDE" strokeWidth="0.0" text="Channel name">
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Channel name">
                <HBox.margin>
                   <Insets right="20.0" />
                </HBox.margin>
@@ -27,7 +27,7 @@
                   <Insets right="200.0" />
                </HBox.margin>
             </TextField>
-            <Button fx:id="applyBtn" mnemonicParsing="false" onAction="#ApplyButton" prefWidth="100.0" text="Apply">
+            <Button fx:id="applyBtn" mnemonicParsing="false" onAction="#applyButton" prefWidth="100.0" text="Apply">
                <HBox.margin>
                   <Insets />
                </HBox.margin>
@@ -36,7 +36,7 @@
       </HBox>
       <HBox alignment="CENTER_LEFT" layoutX="25.0" layoutY="106.0" prefHeight="30.0" prefWidth="300.0">
          <children>
-            <Text fx:id="usernameText1" strokeType="OUTSIDE" strokeWidth="0.0" text="Members">
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Members">
                <font>
                   <Font size="16.0" />
                </font>
@@ -51,7 +51,7 @@
       </HBox>
       <HBox alignment="CENTER_LEFT" layoutX="375.0" layoutY="106.0" prefHeight="30.0" prefWidth="300.0">
          <children>
-            <Text fx:id="usernameText11" strokeType="OUTSIDE" strokeWidth="0.0" text="Invite">
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Invite">
                <font>
                   <Font size="16.0" />
                </font>
@@ -66,12 +66,12 @@
       </HBox>
       <HBox alignment="CENTER" layoutX="375.0" layoutY="436.0" prefHeight="50.0" prefWidth="300.0">
          <children>
-            <Button fx:id="deleteBtn" mnemonicParsing="false" onAction="#DeleteButton" prefWidth="100.0" text="Delete">
+            <Button fx:id="deleteBtn" mnemonicParsing="false" onAction="#deleteButton" prefWidth="100.0" text="Delete">
                <HBox.margin>
                   <Insets right="100.0" />
                </HBox.margin>
             </Button>
-            <Button fx:id="closeBtn" mnemonicParsing="false" onAction="#CloseButton" prefWidth="100.0" text="Close" />
+            <Button fx:id="closeBtn" mnemonicParsing="false" onAction="#closeButton" prefWidth="100.0" text="Close" />
          </children>
       </HBox>
       <ScrollPane layoutX="25.0" layoutY="136.0" prefHeight="300.0" prefWidth="300.0">

@@ -98,7 +98,6 @@ public class ClientThread extends Thread {
 		});
 		
 		sendCommand(Constants.SUCCESS, editor);
-		app.sendToAll(Constants.EDIT_CHANNEL, channel);
 	}
 	
 	private void protocolRegister(User user) throws IOException, SQLException {
@@ -143,6 +142,11 @@ public class ClientThread extends Thread {
 	private void protocolNewMessage(Message message) throws SQLException, IOException {
 		message.senderId = user.id;
 		message.channelId = currentChannel;
+		
+		if (!app.database.Channel.isUserPartOfChannel(user.id, message.channelId)) {
+			sendCommand(Constants.ERROR,"This shouldn't happen, user doesnt belong to channel");
+			return;
+		}
 		
 		boolean success = app.database.Message.createMessage(message);
 		if (!success) {
