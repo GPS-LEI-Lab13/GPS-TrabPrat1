@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS Message (
     FOREIGN KEY (sender_id)
         REFERENCES User (id),
     FOREIGN KEY (channel_id)
-        REFERENCES Channel (id)
+        REFERENCES Channel (id) on delete cascade
 );
 -- Setup -----------------------------------
 insert into User(id,username,password_hash) values(1,'Admin','3fw42nemv0hxxa98e8rn32syomxixtp9259v0mebmrmi91evfbuser');

@@ -76,11 +76,7 @@ public class ClientThread extends Thread {
 			sendCommand(Constants.ERROR, "Client Side Error");
 			return;
 		}
-		/* On Client Side only fill changes
-		editor.usersIn.removeIf(s -> s.contains(username));
-		editorReceived.usersIn.removeIf(s -> s.contains(username));
-		editor.usersOut.add(username);
-		*/
+		
 		editor.name = channel.name;
 		
 		List<User> usersIn = app.database.Channel.getChannelUsers(editor.channelId);
@@ -93,7 +89,7 @@ public class ClientThread extends Thread {
 		editor.usersOut = new ArrayList<>(allUsers.size() - usersIn.size());
 		
 		allUsers.forEach(user -> {
-			if (!editor.usersIn.contains(user.username))
+			if (!editor.usersIn.contains(user.username) && user.id != this.user.id)
 				editor.usersOut.add(user.username);
 		});
 		
@@ -144,7 +140,7 @@ public class ClientThread extends Thread {
 		message.channelId = currentChannel;
 		
 		if (!app.database.Channel.isUserPartOfChannel(user.id, message.channelId)) {
-			sendCommand(Constants.ERROR,"This shouldn't happen, user doesnt belong to channel");
+			sendCommand(Constants.ERROR, "This shouldn't happen, user doesnt belong to channel");
 			return;
 		}
 		
@@ -289,7 +285,7 @@ public class ClientThread extends Thread {
 			}
 		}
 		sendCommand(Constants.SUCCESS, null);
-		app.sendToAll(Constants.EDIT_CHANNEL, channel);
+		app.sendToAll(Constants.EDIT_CHANNEL, app.database.Channel.getByID(channelChanges.channelId));
 	}
 	
 	public void sendCommand(String protocol, Object extras) throws IOException {

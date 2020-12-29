@@ -120,6 +120,7 @@ public class MainWindow implements Initializable {
 			label.setOnMouseClicked(event -> {
 				try {
 					app.setSelectedChannel(channel);
+					updateChannelList();
 					channelListOnClick();
 				} catch (IOException | InterruptedException e) {
 					e.printStackTrace();
@@ -132,6 +133,7 @@ public class MainWindow implements Initializable {
 				image.setFitHeight(15);
 				image.setOnMouseClicked(event -> {
 					app.setSelectedChannel(channel);
+					updateChannelList();
 					openEditChannel();
 				});
 				box.getChildren().add(image);

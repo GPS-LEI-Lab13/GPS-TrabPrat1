@@ -28,7 +28,7 @@ public class MainReceiver extends Thread {
 				
 				Command command = (Command) ois.readObject();
 				if (!command.protocol.equals(Constants.FILE_BLOCK)) {
-					System.out.println(command);
+					System.out.println("Received : " + command);
 				}
 				for (var queue : list) {
 					queue.offer(command);

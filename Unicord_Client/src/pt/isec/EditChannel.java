@@ -3,11 +3,15 @@ package pt.isec;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -22,6 +26,8 @@ public class EditChannel implements Initializable {
 	public TextField channelNameTextField;
 	private ChannelEditor oldChannelEditor;
 	private ChannelEditor newChannelEditor;
+	private ImageView removeImage;
+	private ImageView addImage;
 	
 	
 	@Override
@@ -34,12 +40,13 @@ public class EditChannel implements Initializable {
 			} else {
 				oldChannelEditor = (ChannelEditor) command.extras;
 				channelNameTextField.setText(oldChannelEditor.name);
-				scrollPanesEditChannel(oldChannelEditor.usersIn, true);
-				scrollPanesEditChannel(oldChannelEditor.usersOut, false);
 				
 				newChannelEditor = new ChannelEditor(oldChannelEditor.channelId);
 				newChannelEditor.usersIn = new ArrayList<>();
 				newChannelEditor.usersOut = new ArrayList<>();
+				
+				scrollPanesEditChannel(oldChannelEditor.usersIn, true);
+				scrollPanesEditChannel(oldChannelEditor.usersOut, false);
 			}
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
@@ -50,35 +57,9 @@ public class EditChannel implements Initializable {
 		for (var user : users) {
 			HBox hBox = new HBox();
 			Label label = new Label(user);
+			//ImageView imageView = isIn ? removeImage : addImage;
+			ImageView imageView = clickMaister(isIn);
 			
-			var newUsersIn = newChannelEditor.usersIn;
-			var newUsersOut = newChannelEditor.usersOut;
-			
-			ImageView imageView = new ImageView(isIn ? getClass().getResource("Images/delete_user.png").toExternalForm() : getClass().getResource("Images/add_user.png").toExternalForm());
-			imageView.setFitWidth(15);
-			imageView.setFitHeight(15);
-			
-			if (isIn) { // If is being removed
-				imageView.setOnMouseClicked(event -> {
-					membersVbox.getChildren().remove(label);
-					inviteVbox.getChildren().add(label);
-					
-					oldChannelEditor.usersIn.removeIf(username -> username.equals(user));
-					newChannelEditor.usersIn.removeIf(username -> username.equals(user));
-					
-					newChannelEditor.usersOut.add(user);
-				});
-			} else { // If is being added
-				imageView.setOnMouseClicked(event -> {
-					inviteVbox.getChildren().remove(label);
-					membersVbox.getChildren().add(label);
-					
-					oldChannelEditor.usersIn.removeIf(username -> username.equals(user));
-					newChannelEditor.usersIn.removeIf(username -> username.equals(user));
-					
-					newChannelEditor.usersIn.add(user);
-				});
-			}
 			hBox.getChildren().addAll(label, imageView);
 			if (isIn) {
 				membersVbox.getChildren().add(hBox);
@@ -88,11 +69,57 @@ public class EditChannel implements Initializable {
 		}
 	}
 	
+	public ImageView clickMaister(boolean isIn) {
+		ImageView imageView = new ImageView(isIn ? getClass().getResource("Images/delete_user.png").toExternalForm() : getClass().getResource("Images/add_user.png").toExternalForm());
+		imageView.setFitWidth(15);
+		imageView.setFitHeight(15);
+		if (isIn) {
+			imageView.setOnMouseClicked(event -> {
+				ImageView thisOne = (ImageView) event.getSource();
+				HBox box = (HBox) thisOne.getParent();
+				Label thisLabel = (Label) box.getChildren().get(0);
+				String thisUsername = thisLabel.getText();
+				oldChannelEditor.usersIn.removeIf(username -> username.equals(thisUsername));
+				newChannelEditor.usersIn.removeIf(username -> username.equals(thisUsername));
+				
+				membersVbox.getChildren().remove(box);
+				inviteVbox.getChildren().add(box);
+				
+				
+				newChannelEditor.usersOut.add(thisUsername);
+				
+				box.getChildren().remove(1);
+				box.getChildren().add(clickMaister(false));
+			});
+		} else {
+			imageView.setOnMouseClicked(event -> {
+				ImageView thisOne = (ImageView) event.getSource();
+				HBox box = (HBox) thisOne.getParent();
+				Label thisLabel = (Label) box.getChildren().get(0);
+				String thisUsername = thisLabel.getText();
+				oldChannelEditor.usersIn.removeIf(username -> username.equals(thisUsername));
+				newChannelEditor.usersIn.removeIf(username -> username.equals(thisUsername));
+				
+				inviteVbox.getChildren().remove(box);
+				membersVbox.getChildren().add(box);
+				
+				
+				newChannelEditor.usersIn.add(thisUsername);
+				
+				box.getChildren().remove(1);
+				box.getChildren().add(clickMaister(true));
+			});
+		}
+		return imageView;
+	}
+	
 	public void applyButton(ActionEvent actionEvent) {
 		App app = App.getApp();
 		String channelName = channelNameTextField.getText();
 		
-		if (!channelName.isBlank() && !channelName.equals(oldChannelEditor.name)) {
+		if (channelName.isBlank() || channelName.equals(oldChannelEditor.name)) {
+			newChannelEditor.name = null;
+		}else{
 			newChannelEditor.name = channelName;
 		}
 		
@@ -117,7 +144,9 @@ public class EditChannel implements Initializable {
 	public void deleteButton(ActionEvent actionEvent) {
 		App app = App.getApp();
 		try {
-			boolean bool = app.openMessageDialogDeleteChannel(Alert.AlertType.CONFIRMATION, "Delete channel", "Do you want to delete this channel?");
+			boolean bool = app.openMessageDialogDeleteChannel(Alert.AlertType.CONFIRMATION,
+					"Delete channel", "Do you want to delete this channel?");
+			System.out.println(bool);
 			if (bool) {
 				Command command = app.sendAndReceive(Constants.DELETE_CHANNEL, app.getSelectedChannel().id);
 				if (command.protocol.equals(Constants.ERROR)) {
