@@ -127,6 +127,8 @@ public class MainWindow implements Initializable {
 			box.getChildren().add(label);
 			if (channel.creatorId == app.getUser().id) {
 				ImageView image = new ImageView(getClass().getResource("Images/gear.png").toExternalForm());
+				image.setFitWidth(15);
+				image.setFitHeight(15);
 				image.setOnMouseClicked(event -> {
 					app.setSelectedChannel(channel);
 					openEditChannel();
