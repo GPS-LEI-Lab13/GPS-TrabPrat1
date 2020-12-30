@@ -93,12 +93,6 @@ public class MainWindow implements Initializable {
                             messages.add(message);
                             Platform.runLater(() -> messagesFilesVBox.getChildren().add(insertLine(message)));
                         }
-                        case Constants.SERVER_SHUTDOWN -> {
-                            Platform.runLater(() -> {
-                                app.openMessageDialog(Alert.AlertType.INFORMATION, "Server shutdown", "My Battery Is Low and It’s Getting Dark?");
-                                System.exit(-1);
-                            });
-                        }
                     }
                 }
             } catch (Exception e) {
@@ -179,16 +173,13 @@ public class MainWindow implements Initializable {
         HBox box = new HBox();
         box.setFillHeight(true);
 
+        Label dateLabel = new Label(app.getFormattedDate(message.date));
+        Label usernameLabel = new Label(" " + message.senderUsername + ": ");
         Label label = new Label(message.content);
+        usernameLabel.setTextFill(app.getUser().id != message.senderId ? Color.web("#7D82B8") : Color.web("#B8B37D"));
+        box.getChildren().addAll(dateLabel, usernameLabel, label);
+        box.setAlignment(Pos.BASELINE_LEFT);
 
-        if (app.getUser().id != message.senderId) {
-            Label usernameLabel = new Label(message.senderUsername + ": ");
-            usernameLabel.setTextFill(Color.web("#7D82B8"));
-            box.getChildren().add(usernameLabel);
-            box.setAlignment(Pos.BASELINE_LEFT);
-        } else {
-            box.setAlignment(Pos.BASELINE_RIGHT);
-        }
         Button downloadBtn = null;
         if (message.type.equals(Message.TYPE_FILE)) {
             downloadBtn = new Button();
@@ -211,7 +202,6 @@ public class MainWindow implements Initializable {
             });
         }
 
-        box.getChildren().add(label);
         if (downloadBtn != null) {
             box.getChildren().add(downloadBtn);
         }

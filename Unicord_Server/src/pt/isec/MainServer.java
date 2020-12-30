@@ -64,7 +64,6 @@ public class MainServer extends Thread {
 		for (ClientThread u : clients) {
 			if (u.isLoggedIn() && u.getCurrentChannel() == channelId) {
 				u.sendCommand(protocol, extras);
-				return;
 			}
 		}
 	}

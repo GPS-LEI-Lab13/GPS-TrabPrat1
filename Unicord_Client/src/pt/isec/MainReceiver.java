@@ -1,6 +1,7 @@
 package pt.isec;
 
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -37,8 +38,11 @@ public class MainReceiver extends Thread {
 			}
 		} catch (IOException | ClassNotFoundException e) {
 			System.out.println("[MainReceiver] Exception: " + e.getMessage());
-			Platform.exit();
-			System.exit(-1);
+			Platform.runLater(() -> {
+				App.getApp().openMessageDialog(Alert.AlertType.INFORMATION,
+						"Server shutdown", "My Battery Is Low and It’s Getting Dark?");
+				System.exit(-1);
+			});
 		}
 	}
 	

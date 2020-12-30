@@ -34,7 +34,7 @@ public class EditChannel implements Initializable {
 	public void initialize(URL url, ResourceBundle resourceBundle) {
 		App app = App.getApp();
 		try {
-			Command command = app.sendAndReceive(Constants.EDIT_CHANNEL_GET_USERS, app.getSelectedChannel().id); //TODO Check problems
+			Command command = app.sendAndReceive(Constants.EDIT_CHANNEL_GET_USERS, app.getSelectedChannel().id);
 			if (command.protocol.equals(Constants.ERROR)) {
 				app.openMessageDialog(Alert.AlertType.ERROR, "Channel Editing", (String) command.extras);
 			} else {

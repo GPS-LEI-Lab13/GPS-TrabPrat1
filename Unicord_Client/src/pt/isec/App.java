@@ -17,7 +17,9 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
@@ -34,6 +36,8 @@ public class App extends Application {
 	private Scene scene;
 	public static String serverAddress;
 	private static App instance;
+	private final SimpleDateFormat sDF = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
+	private final Date date = new Date();
 	
 	public static App getApp() {
 		return instance;
@@ -45,7 +49,11 @@ public class App extends Application {
 		mainReceiver = new MainReceiver(socket);
 		mainReceiver.start();
 	}
-	
+
+	public String getFormattedDate(long time) {
+		date.setTime(time);
+		return sDF.format(date);
+	}
 	
 	public App() {
 	}

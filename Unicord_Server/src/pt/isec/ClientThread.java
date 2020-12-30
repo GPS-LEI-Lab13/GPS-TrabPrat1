@@ -149,21 +149,23 @@ public class ClientThread extends Thread {
 			sendCommand(Constants.ERROR, "Server Error");
 			return;
 		}
+		message = app.database.Message.getByID(message.id);
 		if (message.type.equals(Message.TYPE_TEXT)) {
 			app.sendToChannelUsers(message.channelId, Constants.NEW_MESSAGE, message);
 		} else {
 			BlockingQueue<Command> commandQueue = receiver.addListener();
 			sendCommand(Constants.SUCCESS, null);
+			Message finalMessage = message;
 			new Thread(() -> {
 				try {
-					FileOutputStream fos = new FileOutputStream(Constants.getFile(message.content));
+					FileOutputStream fos = new FileOutputStream(Constants.getFile(finalMessage.content));
 					while (true) {
 						Command command = commandQueue.take();
 						
 						if (command.protocol.equals(Constants.FILE_BLOCK) && command.extras instanceof FileBlock) {
 							FileBlock fileBlock = (FileBlock) command.extras;
 							// This is upload from the client to the server
-							if (fileBlock.identifier.equals(Constants.UPLOAD_IDENTIFIER + message.content)) {
+							if (fileBlock.identifier.equals(Constants.UPLOAD_IDENTIFIER + finalMessage.content)) {
 								if (fileBlock.bytes.length == 0) {
 									fos.close();
 									break;
@@ -172,7 +174,7 @@ public class ClientThread extends Thread {
 							}
 						}
 					}
-					app.sendToChannelUsers(message.channelId, Constants.NEW_MESSAGE, message);
+					app.sendToChannelUsers(finalMessage.channelId, Constants.NEW_MESSAGE, finalMessage);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -266,9 +268,9 @@ public class ClientThread extends Thread {
 				User user = app.database.User.getByUsername(username);
 				if (!app.database.Channel.addUser(user.id, channel.id)) {
 					sendCommand(Constants.ERROR, "Something went wrong");
-					app.sendToUser(user.id, Constants.NEW_CHANNEL, channel);
 					return;
 				}
+				app.sendToUser(user.id, Constants.NEW_CHANNEL, channel);
 			}
 		}
 		if (channelChanges.usersOut != null) {
@@ -277,9 +279,9 @@ public class ClientThread extends Thread {
 
 				if (!app.database.Channel.removeUser(user.id, channel.id)) {
 					sendCommand(Constants.ERROR, "Something went wrong");
-					app.sendToUser(user.id, Constants.DELETE_CHANNEL, channel);
 					return;
 				}
+				app.sendToUser(user.id, Constants.DELETE_CHANNEL, channel);
 			}
 		}
 		sendCommand(Constants.SUCCESS, null);
@@ -288,6 +290,7 @@ public class ClientThread extends Thread {
 		for (User u : users) {
 			app.sendToUser(u.id ,Constants.EDIT_CHANNEL, channelByID);
 		}
+		sendCommand(Constants.EDIT_CHANNEL, channelByID);
 	}
 	
 	public void sendCommand(String protocol, Object extras) throws IOException {
