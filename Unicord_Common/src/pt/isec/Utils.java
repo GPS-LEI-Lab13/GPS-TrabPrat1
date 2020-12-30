@@ -13,11 +13,24 @@ public class Utils {
 		byte[] hash = digest.digest(str.getBytes());
 		return new BigInteger(1, hash).toString(36);
 	}
-	
+
 	public static void createFileDirectories(File file) {
+		createDirectories(file, true);
+	}
+
+	private static void createDirectories(File file, boolean bottom) {
+		if (file.exists()) return;
+		File parent = file.getParentFile();
+		if (parent != null)
+			createDirectories(parent, false);
+		if (!bottom)
+			file.mkdir();
+	}
+
+	/*public static void createFileDirectories(File file) {
 		createDirectories(file);
 	}
-	
+
 	private static void createDirectories(File directory) {
 		if (directory.exists()) return;
 		File parent = directory.getParentFile();
@@ -25,8 +38,8 @@ public class Utils {
 			createDirectories(parent);
 		
 		directory.mkdir();
-	}
-	
+	}*/
+
 	public static String addTimestampFileName(String fileName) {
 		String utcTimeString = "" + new Date().getTime();
 		int timeLength = utcTimeString.length() - 8;

@@ -1,6 +1,7 @@
 package pt.isec;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -12,12 +13,10 @@ import pt.isec.Channel;
 import pt.isec.MainReceiver;
 import pt.isec.User;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -53,10 +52,13 @@ public class App extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		
 		instance = this;
 		mainStage = primaryStage;
-		
+		mainStage.setOnCloseRequest((e) -> {
+			e.consume();
+			Platform.exit();
+			System.exit(0);
+		});
 		initialize();
 		System.out.println("Connection Successful");
 		
@@ -78,7 +80,6 @@ public class App extends Application {
 			System.out.println("Trying to connect");
 			App.serverAddress = serverAddress;
 			launch();
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -91,6 +92,12 @@ public class App extends Application {
 	
 	public void setWindowRoot(String fxml) throws IOException {
 		scene.setRoot(loadFxml("fxml/" + fxml));
+	}
+
+	public void setWindowRoot(String fxml, double width, double height) throws IOException {
+		setWindowRoot(fxml);
+		scene.getWindow().setWidth(width);
+		scene.getWindow().setHeight(height);
 	}
 	
 	public BlockingQueue<Command> getReceivedObjectQueue() {
@@ -137,51 +144,73 @@ public class App extends Application {
 		this.selectedChannel = selectedChannel;
 	}
 	
-	public void downloadFile(Message message, String absolutePath) throws IOException, InterruptedException {
+	public void downloadFile(Message message, File absolutePath) throws IOException, InterruptedException {
 		//TODO
-		Command command = sendAndReceive(Constants.DOWNLOAD_FILE, message.content);
-		
+		BlockingQueue<Command> commands = mainReceiver.addListener();
+		Command command = sendAndReceive(Constants.DOWNLOAD_FILE, message.id);
+		if (command.protocol.equals(Constants.ERROR)) {
+			openMessageDialog(Alert.AlertType.ERROR, "Download file", "An error occurred while downloading your file.");
+			return;
+		}
+		Thread td = new Thread(() -> {
+			try {
+				File file = new File(absolutePath + File.separator + message.content);
+				FileOutputStream fOS = new FileOutputStream(file);
+				while (true) {
+					Command cmd = commands.take();
+					if (cmd.protocol.equals(Constants.FILE_BLOCK) && cmd.extras instanceof FileBlock) {
+						FileBlock fileBlock = (FileBlock) cmd.extras;
+						if (fileBlock.identifier.equals(Constants.DOWNLOAD_IDENTIFIER + message.content)) {
+							if (fileBlock.bytes.length == 0) {
+								fOS.close();
+								break;
+							}
+							fOS.write(fileBlock.bytes);
+						}
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		td.setDaemon(true);
+		td.start();
 	}
 	
 	public void uploadFile(File file) {
 		Message message = new Message(0, user.id, selectedChannel.id, Message.TYPE_FILE, file.getName(), 0, user.username);
 		message.content = Utils.addTimestampFileName(message.content);
-		try {
-			Thread td = new Thread(() -> {
-				try {
-					Command command = sendAndReceive(Constants.NEW_MESSAGE, message);
-					if (command.protocol.equals(Constants.ERROR)) {
-						openMessageDialog(Alert.AlertType.ERROR, "Error Dialog", command.extras.toString());
-						return;
-					} else {
+		Thread td = new Thread(() -> {
+			try {
+				Command command = sendAndReceive(Constants.NEW_MESSAGE, message);
+				if (command.protocol.equals(Constants.ERROR)) {
+					openMessageDialog(Alert.AlertType.ERROR, "Error Dialog", command.extras.toString());
+					return;
+				} else {
+					FileInputStream fIS = new FileInputStream(file);
+					while (true) {
 						FileBlock fileBlock = new FileBlock(Constants.UPLOAD_IDENTIFIER + message.content);
-						var bytes = fileBlock.bytes;
-						FileInputStream fIS = new FileInputStream(file);
-						while (true) {
-							int readAmount = fIS.read(bytes);
-							if (readAmount <= 0) {
-								fileBlock.bytes = new byte[0];
-								sendCommand(Constants.FILE_BLOCK, fileBlock);
-								fIS.close();
-								break;
-							}
-							if (readAmount < fileBlock.bytes.length) {
-								fileBlock.bytes = Arrays.copyOfRange(bytes, 0, readAmount);
-							}
+						byte[] bytes = fileBlock.bytes;
+						int readAmount = fIS.read(bytes);
+						if (readAmount <= 0) {
+							fileBlock.bytes = new byte[0];
 							sendCommand(Constants.FILE_BLOCK, fileBlock);
-							fileBlock.bytes = bytes;
+							fIS.close();
+							break;
 						}
+						if (readAmount < fileBlock.bytes.length) {
+							fileBlock.bytes = Arrays.copyOfRange(bytes, 0, readAmount);
+						}
+						sendCommand(Constants.FILE_BLOCK, fileBlock);
+						fileBlock.bytes = bytes;
 					}
-				} catch (IOException | InterruptedException e) {
-					e.printStackTrace();
 				}
-			});
-			td.setDaemon(true);
-			td.start();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
+			} catch (IOException | InterruptedException e) {
+				e.printStackTrace();
+			}
+		});
+		td.setDaemon(true);
+		td.start();
 	}
 	
 	public void openMessageDialog(Alert.AlertType type, String title, String message) {

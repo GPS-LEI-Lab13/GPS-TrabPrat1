@@ -39,7 +39,7 @@ public class Login {
                     app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, (String) command.extras);
                 }else{
                     app.setUser((User) command.extras);
-                    app.setWindowRoot("MainWindow.fxml");
+                    app.setWindowRoot("MainWindow.fxml", 1280, 760);
                 }
             } catch (IOException | InterruptedException | NoSuchAlgorithmException e) {
                 e.printStackTrace();

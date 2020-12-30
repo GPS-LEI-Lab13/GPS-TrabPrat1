@@ -30,7 +30,7 @@ public class MainReceiver extends Thread {
 		try {
 			while (true) {
 				
-				Command command = (Command) ois.readObject();
+				Command command = (Command) ois.readUnshared();
 				if (!command.protocol.equals(Constants.FILE_BLOCK)) {
 					System.out.println("Received: " + command);
 				}
@@ -40,7 +40,7 @@ public class MainReceiver extends Thread {
 			}
 		} catch (IOException | ClassNotFoundException e) {
 			MainServer.getInstance().removeClient(creator);
-			System.out.println("Exception" + e.getMessage());
+			System.out.println("[MainReceiver] Exception: " + e.getMessage());
 		}
 	}
 	

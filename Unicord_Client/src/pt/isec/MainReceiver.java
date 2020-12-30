@@ -25,9 +25,8 @@ public class MainReceiver extends Thread {
 	public void run() {
 		try {
 			while (true) {
-				
-				Command command = (Command) ois.readObject();
-				if (!command.protocol.equals(Constants.FILE_BLOCK)) {
+				Command command = (Command) ois.readUnshared();
+				if (true || !command.protocol.equals(Constants.FILE_BLOCK)) {
 					System.out.println("Received : " + command);
 				}
 				for (var queue : list) {
@@ -35,7 +34,7 @@ public class MainReceiver extends Thread {
 				}
 			}
 		} catch (IOException | ClassNotFoundException e) {
-			System.out.println("Exception" + e.getMessage());
+			System.out.println("[MainReceiver] Exception: " + e.getMessage());
 		}
 	}
 	

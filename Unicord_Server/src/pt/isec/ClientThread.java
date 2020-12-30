@@ -18,7 +18,7 @@ public class ClientThread extends Thread {
 	private MainReceiver receiver;
 	private final MainServer app;
 	private User user = null;
-	private int currentChannel = -1;
+	private int currentChannel = 1;
 	
 	public ClientThread(Socket socket, MainServer mainServer) {
 		this.socket = socket;
@@ -150,7 +150,7 @@ public class ClientThread extends Thread {
 			return;
 		}
 		if (message.type.equals(Message.TYPE_TEXT)) {
-			app.sendToAll(Constants.NEW_MESSAGE, message);
+			app.sendToChannelUsers(message.channelId, Constants.NEW_MESSAGE, message);
 		} else {
 			BlockingQueue<Command> commandQueue = receiver.addListener();
 			sendCommand(Constants.SUCCESS, null);
@@ -163,8 +163,7 @@ public class ClientThread extends Thread {
 						if (command.protocol.equals(Constants.FILE_BLOCK) && command.extras instanceof FileBlock) {
 							FileBlock fileBlock = (FileBlock) command.extras;
 							// This is upload from the client to the server
-							if (fileBlock.identifier.equals(Constants.UPLOAD_IDENTIFIER + message.content)) { //  <---- TODO part 1 : check this shit out
-								
+							if (fileBlock.identifier.equals(Constants.UPLOAD_IDENTIFIER + message.content)) {
 								if (fileBlock.bytes.length == 0) {
 									fos.close();
 									break;
@@ -173,11 +172,10 @@ public class ClientThread extends Thread {
 							}
 						}
 					}
-					app.sendToAll(Constants.NEW_MESSAGE, message);
+					app.sendToChannelUsers(message.channelId, Constants.NEW_MESSAGE, message);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
 				receiver.removeListener(commandQueue);
 			}).start();
 		}
@@ -207,13 +205,13 @@ public class ClientThread extends Thread {
 					sendCommand(Constants.ERROR, "Message does not exist");
 					return;
 				}
+				sendCommand(Constants.SUCCESS, null);
 				
 				FileInputStream fis = new FileInputStream(Constants.getFile(message.content));
 				// This is download from the client to the server
-				FileBlock fileBlock = new FileBlock(Constants.DOWNLOAD_IDENTIFIER + message.content); // TODO part 2 : check this shit out
-				var bytes = fileBlock.bytes;
-				
 				while (true) {
+					FileBlock fileBlock = new FileBlock(Constants.DOWNLOAD_IDENTIFIER + message.content);
+					byte[] bytes = fileBlock.bytes;
 					int readAmount = fis.read(bytes);
 					if (readAmount <= 0) {
 						fileBlock.bytes = new byte[0];
@@ -227,7 +225,6 @@ public class ClientThread extends Thread {
 					sendCommand(Constants.FILE_BLOCK, fileBlock);
 					fileBlock.bytes = bytes;
 				}
-				app.sendToAll(Constants.NEW_MESSAGE, message);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -255,9 +252,9 @@ public class ClientThread extends Thread {
 			sendCommand(Constants.ERROR, "User is  not channel owner");
 			return;
 		}
-		channel.name = channelChanges.name;
 		
 		if (channelChanges.name != null) {
+			channel.name = channelChanges.name;
 			if (!app.database.Channel.editChannel(channel)) {
 				sendCommand(Constants.ERROR, "Name already in use");
 				return;
@@ -268,7 +265,7 @@ public class ClientThread extends Thread {
 				User user = app.database.User.getByUsername(username);
 				if (!app.database.Channel.addUser(user.id, channel.id)) {
 					sendCommand(Constants.ERROR, "Something went wrong");
-					// TODO warn user that he became part of channel
+					app.sendToUser(user.id, Constants.NEW_CHANNEL, channel);
 					return;
 				}
 			}
@@ -276,28 +273,39 @@ public class ClientThread extends Thread {
 		if (channelChanges.usersOut != null) {
 			for (var username : channelChanges.usersOut) {
 				User user = app.database.User.getByUsername(username);
-				
+
 				if (!app.database.Channel.removeUser(user.id, channel.id)) {
 					sendCommand(Constants.ERROR, "Something went wrong");
-					// TODO warn user that he gone form channel
+					app.sendToUser(user.id, Constants.DELETE_CHANNEL, channel);
 					return;
 				}
 			}
 		}
 		sendCommand(Constants.SUCCESS, null);
-		app.sendToAll(Constants.EDIT_CHANNEL, app.database.Channel.getByID(channelChanges.channelId));
+		List<User> users = app.database.Channel.getChannelUsers(channelChanges.channelId);
+		Channel channelByID = app.database.Channel.getByID(channelChanges.channelId);
+		for (User u : users) {
+			app.sendToUser(u.id ,Constants.EDIT_CHANNEL, channelByID);
+		}
 	}
 	
 	public void sendCommand(String protocol, Object extras) throws IOException {
 		Command obj = new Command(protocol, extras);
 		oos.writeUnshared(obj);
-		oos.flush();
 		if (!(extras instanceof FileBlock)) {
 			System.out.println(obj);
 		}
 	}
+
+	public User getUser() {
+		return this.user;
+	}
+
+	public int getCurrentChannel() {
+		return this.currentChannel;
+	}
 	
-	private boolean isLoggedIn() {
+	public boolean isLoggedIn() {
 		return user != null;
 	}
 }

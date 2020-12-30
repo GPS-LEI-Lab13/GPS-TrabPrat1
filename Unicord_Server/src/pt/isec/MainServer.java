@@ -46,12 +46,29 @@ public class MainServer extends Thread {
 	}
 	
 	public void sendToAll(String protocol, Object extras) throws IOException {
-		System.out.println("Send to all : " + new Command(protocol, extras));
 		for (var client : clients) {
 			client.sendCommand(protocol, extras);
 		}
 	}
-	
+
+	public void sendToUser(int userId, String protocol, Object extras) throws IOException {
+		for (ClientThread u : clients) {
+			if (u.isLoggedIn() && u.getUser().id == userId) {
+				u.sendCommand(protocol, extras);
+				return;
+			}
+		}
+	}
+
+	public void sendToChannelUsers(int channelId, String protocol, Object extras) throws IOException {
+		for (ClientThread u : clients) {
+			if (u.isLoggedIn() && u.getCurrentChannel() == channelId) {
+				u.sendCommand(protocol, extras);
+				return;
+			}
+		}
+	}
+
 	public void shutdown() {
 		try {
 			sendToAll(Constants.SERVER_SHUTDOWN, null);

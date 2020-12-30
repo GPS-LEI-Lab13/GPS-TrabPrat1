@@ -87,6 +87,12 @@ public class MainWindow implements Initializable {
 							messages.add(message);
 							Platform.runLater(() -> messagesFilesVBox.getChildren().add(insertLine(message)));
 						}
+						case Constants.SERVER_SHUTDOWN -> {
+							Platform.runLater(() -> {
+								app.openMessageDialog(Alert.AlertType.INFORMATION, "Server shutdown", "My Battery Is Low and It’s Getting Dark?");
+								System.exit(-1);
+							});
+						}
 					}
 				}
 			} catch (Exception e) {
@@ -182,16 +188,17 @@ public class MainWindow implements Initializable {
 			downloadBtn = new Button();
 			//TODO METER IMAGEM NO BUTTON
 			downloadBtn.setOnAction(event -> {
+				event.consume();
 				DirectoryChooser directoryChooser = new DirectoryChooser();
 				File fileDirectory = directoryChooser.showDialog(app.getStage());
 				if (fileDirectory == null) {
 					return;
 				}
-				try {
-					app.downloadFile(message, fileDirectory.getAbsolutePath());
-				} catch (IOException | InterruptedException e) {
-					e.printStackTrace();
-				}
+					try {
+						app.downloadFile(message, fileDirectory);
+					} catch (IOException | InterruptedException e) {
+						e.printStackTrace();
+					}
 			});
 		}
 		
