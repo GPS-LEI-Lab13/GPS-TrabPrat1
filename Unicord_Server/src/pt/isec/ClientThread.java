@@ -244,6 +244,7 @@ public class ClientThread extends Thread {
 			return;
 		}
 		sendCommand(Constants.SUCCESS, null);
+		sendCommand(Constants.NEW_CHANNEL, channel);
 	}
 	
 	private void protocolEditChannel(ChannelEditor channelChanges) throws IOException, SQLException {
@@ -293,7 +294,8 @@ public class ClientThread extends Thread {
 		Command obj = new Command(protocol, extras);
 		oos.writeUnshared(obj);
 		if (!(extras instanceof FileBlock)) {
-			System.out.println(obj);
+			if (user != null)
+				System.out.println(user.username + ": " + obj);
 		}
 	}
 
