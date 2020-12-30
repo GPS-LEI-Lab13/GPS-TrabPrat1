@@ -3,7 +3,9 @@ package pt.isec;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -51,6 +53,9 @@ public class MainWindow implements Initializable {
             e.printStackTrace();
         }
         getUpdates();
+        messagesFilesVBox.setSpacing(5);
+        messagesFilesVBox.setPadding(new Insets(10, 20, 10, 20));
+        messageFileScrollPane.vvalueProperty().bind(messagesFilesVBox.heightProperty());
 
         app.getStage().widthProperty().addListener((observable, oldValue, newValue) -> {
             messagesFilesVBox.setPrefWidth(messageFileScrollPane.getWidth() - 20);
@@ -84,8 +89,15 @@ public class MainWindow implements Initializable {
                             Channel channel = (Channel) command.extras;
                             app.getChannels().remove(channel);
                             Platform.runLater(() -> {
+                                if (app.getSelectedChannel().equals(channel)){
+                                    app.setSelectedChannel(app.getChannels().get(0));
+                                    try {
+                                        channelListOnClick();
+                                    } catch (IOException | InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                                 updateChannelList();
-                                app.setSelectedChannel(app.getChannels().get(0));
                             });
                         }
                         case Constants.NEW_MESSAGE -> {
@@ -129,6 +141,7 @@ public class MainWindow implements Initializable {
             }
 
             label.setOnMouseClicked(event -> {
+                event.consume();
                 try {
                     app.setSelectedChannel(channel);
                     updateChannelList();
@@ -143,6 +156,7 @@ public class MainWindow implements Initializable {
                 image.setFitWidth(15);
                 image.setFitHeight(15);
                 image.setOnMouseClicked(event -> {
+                    event.consume();
                     app.setSelectedChannel(channel);
                     updateChannelList();
                     openEditChannel();
@@ -169,12 +183,12 @@ public class MainWindow implements Initializable {
         }
     }
 
-    private HBox insertLine(Message message) {
-        HBox box = new HBox();
+    private Node insertLine(Message message) {
+        HBox box = new HBox(10);
         box.setFillHeight(true);
 
         Label dateLabel = new Label(app.getFormattedDate(message.date));
-        Label usernameLabel = new Label(" " + message.senderUsername + ": ");
+        Label usernameLabel = new Label(message.senderUsername + ":");
         Label label = new Label(message.content);
         usernameLabel.setTextFill(app.getUser().id != message.senderId ? Color.web("#7D82B8") : Color.web("#B8B37D"));
         box.getChildren().addAll(dateLabel, usernameLabel, label);
@@ -183,9 +197,11 @@ public class MainWindow implements Initializable {
         Button downloadBtn = null;
         if (message.type.equals(Message.TYPE_FILE)) {
             downloadBtn = new Button();
+            downloadBtn.setMaxWidth(10);
+            downloadBtn.setMaxHeight(10);
             ImageView image = new ImageView(getClass().getResource("Images/download_icon.png").toExternalForm());
-            image.setFitWidth(15);
-            image.setFitHeight(15);
+            image.setFitWidth(10);
+            image.setFitHeight(10);
             downloadBtn.setGraphic(image);
             downloadBtn.setOnAction(event -> {
                 event.consume();
