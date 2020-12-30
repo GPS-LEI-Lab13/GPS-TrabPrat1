@@ -67,18 +67,21 @@ class DatabaseTest {
 		}
 		
 		Channel channel = new Channel(1, "iufunvfeuyeds");
+		Channel channelByName = database.Channel.getByName(channel.name);
+		if (channelByName != null) {
+			assertSame(true, database.Channel.deleteChannel(channelByName.id));
+		}
 		assertSame(true, database.User.createUser(user));
 		assertSame(true, database.Channel.createChannel(channel));
 		
 		assertSame(true, database.Channel.addUser(user.id, channel.id));
 		
 		ArrayList<Channel> userChannels = database.Channel.getUserChannels(user.id);
-		// TODO eventualmente vai dar erros, I think, ass. Rodrigo
 		
-		assertSame(1, userChannels.size());
+		assertSame(2, userChannels.size());
 		assertSame(true, database.Channel.removeUser(user.id, channel.id));
 		userChannels = database.Channel.getUserChannels(user.id);
-		assertSame(0, userChannels.size());
+		assertSame(1, userChannels.size());
 		
 		deleteUser(user.id);
 		assertSame(true, database.Channel.deleteChannel(channel.id));
