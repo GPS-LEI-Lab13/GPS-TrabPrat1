@@ -59,6 +59,7 @@ public class App extends Application {
 			Platform.exit();
 			System.exit(0);
 		});
+		mainStage.setResizable(false);
 		initialize();
 		System.out.println("Connection Successful");
 		
@@ -101,7 +102,6 @@ public class App extends Application {
 	}
 	
 	public BlockingQueue<Command> getReceivedObjectQueue() {
-		//TODO NEED CLERIFICATION HOW TO DO THIS
 		return mainReceiver.addListener();
 	}
 	
@@ -145,7 +145,6 @@ public class App extends Application {
 	}
 	
 	public void downloadFile(Message message, File absolutePath) throws IOException, InterruptedException {
-		//TODO
 		BlockingQueue<Command> commands = mainReceiver.addListener();
 		Command command = sendAndReceive(Constants.DOWNLOAD_FILE, message.id);
 		if (command.protocol.equals(Constants.ERROR)) {
@@ -163,6 +162,8 @@ public class App extends Application {
 						if (fileBlock.identifier.equals(Constants.DOWNLOAD_IDENTIFIER + message.content)) {
 							if (fileBlock.bytes.length == 0) {
 								fOS.close();
+								Platform.runLater(() ->openMessageDialog(Alert.AlertType.INFORMATION,
+										"Info","Download Completed: " + message.content));
 								break;
 							}
 							fOS.write(fileBlock.bytes);
