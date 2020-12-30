@@ -1,5 +1,7 @@
 package pt.isec;
 
+import javafx.application.Platform;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
@@ -26,7 +28,7 @@ public class MainReceiver extends Thread {
 		try {
 			while (true) {
 				Command command = (Command) ois.readUnshared();
-				if (true || !command.protocol.equals(Constants.FILE_BLOCK)) {
+				if (!command.protocol.equals(Constants.FILE_BLOCK)) {
 					System.out.println("Received : " + command);
 				}
 				for (var queue : list) {
@@ -35,6 +37,8 @@ public class MainReceiver extends Thread {
 			}
 		} catch (IOException | ClassNotFoundException e) {
 			System.out.println("[MainReceiver] Exception: " + e.getMessage());
+			Platform.exit();
+			System.exit(-1);
 		}
 	}
 	
