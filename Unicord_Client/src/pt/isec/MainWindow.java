@@ -89,7 +89,7 @@ public class MainWindow implements Initializable {
                             Channel channel = (Channel) command.extras;
                             app.getChannels().remove(channel);
                             Platform.runLater(() -> {
-                                if (app.getSelectedChannel().equals(channel)){
+                                if (app.getSelectedChannel().equals(channel)) {
                                     app.setSelectedChannel(app.getChannels().get(0));
                                     try {
                                         channelListOnClick();
@@ -189,9 +189,20 @@ public class MainWindow implements Initializable {
 
         Label dateLabel = new Label(app.getFormattedDate(message.date));
         Label usernameLabel = new Label(message.senderUsername + ":");
+
+        VBox vBox = new VBox();
         Label label = new Label(message.content);
+        int yau = (int) Math.ceil(message.content.length() / 100.0);
+        for (int i = 0, j = 0; i < yau; i++, j += 101) {
+            label = new Label(message.content.substring(j, j + 100 > message.content.length() ? message.content.length() - 1 : j + 100));
+            vBox.getChildren().add(label);
+        }
+
+        //label.setWrapText(true);
+
+
         usernameLabel.setTextFill(app.getUser().id != message.senderId ? Color.web("#7D82B8") : Color.web("#B8B37D"));
-        box.getChildren().addAll(dateLabel, usernameLabel, label);
+        box.getChildren().addAll(dateLabel, usernameLabel, vBox);
         box.setAlignment(Pos.BASELINE_LEFT);
 
         Button downloadBtn = null;
@@ -240,12 +251,16 @@ public class MainWindow implements Initializable {
 
     public void aboutMenuItem(ActionEvent actionEvent) {
         App app = App.getApp();
-        app.openMessageDialog(Alert.AlertType.INFORMATION, "About", "Work done by:\n- Davide Coelho\n- Dorin Bosii\n- Leandro Fidalgo\n- Pedro Alves\n- Rodrigo Mendes");
+        app.openMessageDialog(Alert.AlertType.INFORMATION, "About", "Work done by:\n- Dorin Bosii\n- Leandro Fidalgo\n- Pedro Alves\n- Rodrigo Mendes\n- Davide Coelho");
     }
 
     public void SendButton(ActionEvent actionEvent) {
         String messageText = messageTextField.getText();
         if (messageText.isBlank()) return;
+        if (messageText.length() > 511) {
+            app.openMessageDialog(Alert.AlertType.ERROR, "Max lenght", "Give us a break, try to write less(Max:500)!");
+            return;
+        }
         messageTextField.setText("");
         Message message = new Message(0, app.getUser().id, app.getSelectedChannel().id, Message.TYPE_TEXT, messageText, 0, app.getUser().username);
         try {
