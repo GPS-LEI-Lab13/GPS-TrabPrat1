@@ -89,7 +89,7 @@ public class MainWindow implements Initializable {
                             Channel channel = (Channel) command.extras;
                             app.getChannels().remove(channel);
                             Platform.runLater(() -> {
-                                if (app.getSelectedChannel().equals(channel)) {
+                                if (app.getSelectedChannel().equals(channel)){
                                     app.setSelectedChannel(app.getChannels().get(0));
                                     try {
                                         channelListOnClick();
@@ -189,7 +189,6 @@ public class MainWindow implements Initializable {
 
         Label dateLabel = new Label(app.getFormattedDate(message.date));
         Label usernameLabel = new Label(message.senderUsername + ":");
-
         VBox vBox = new VBox();
         Label label = new Label(message.content);
         int yau = (int) Math.ceil(message.content.length() / 100.0);
@@ -197,10 +196,6 @@ public class MainWindow implements Initializable {
             label = new Label(message.content.substring(j, j + 100 > message.content.length() ? message.content.length() - 1 : j + 100));
             vBox.getChildren().add(label);
         }
-
-        //label.setWrapText(true);
-
-
         usernameLabel.setTextFill(app.getUser().id != message.senderId ? Color.web("#7D82B8") : Color.web("#B8B37D"));
         box.getChildren().addAll(dateLabel, usernameLabel, vBox);
         box.setAlignment(Pos.BASELINE_LEFT);
