@@ -30,25 +30,30 @@ public class Register {
         String password = passwordTextField.getText();
         String confirmPassword = confirmPasswordTextField.getText();
         App app = App.getApp();
-        if (!password.equals(confirmPassword)){
-            app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, "Password must be the same");
+
+        if (!Validator.checkUsernameRules(username)) {
+            app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, "Username need a minimum of 6 characters and a maximum of 25!");
             return;
         }
-
-        if(Validator.checkUsernameRules(username) && Validator.checkUserPasswordRules(password)){
-            try {
-                User user = new User(username, Utils.hashString(password));
-                Command command = app.sendAndReceive(Constants.REGISTER, user);
-                if (!command.protocol.equals(Constants.SUCCESS)){
-                    app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, (String) command.extras);
-                }else {
-                    app.setWindowRoot("Login.fxml");
-                }
-            } catch (IOException | InterruptedException | NoSuchAlgorithmException e) {
-                e.printStackTrace();
+        if (!Validator.checkUserPasswordRules(password)) {
+            app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, "Password need a upper letter, a small letter, a special character and a minimum of 8 characters and a maximum of 25!");
+            return;
+        }
+        if (!password.equals(confirmPassword)) {
+            app.openMessageDialog(Alert.AlertType.ERROR, Constants.ERROR, "Password must be the same");
+            return;
+        }
+        try {
+            User user = new User(username, Utils.hashString(password));
+            Command command = app.sendAndReceive(Constants.REGISTER, user);
+            if (!command.protocol.equals(Constants.SUCCESS)) {
+                app.openMessageDialog(Alert.AlertType.ERROR, Constants.ERROR, (String) command.extras);
+            } else {
+                app.openMessageDialog(Alert.AlertType.INFORMATION, "User creation", "User created with success!");
+                app.setWindowRoot("Login.fxml");
             }
-        }else{
-            app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, "Password or Username doesn't follow rules");
+        } catch (IOException | InterruptedException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
         }
     }
 }

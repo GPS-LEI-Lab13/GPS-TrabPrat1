@@ -239,6 +239,8 @@ public class MainWindow implements Initializable {
     }
 
     public void aboutMenuItem(ActionEvent actionEvent) {
+        App app = App.getApp();
+        app.openMessageDialog(Alert.AlertType.INFORMATION, "About", "Work done by:\n- Davide Coelho\n- Dorin Bosii\n- Leandro Fidalgo\n- Pedro Alves\n- Rodrigo Mendes");
     }
 
     public void SendButton(ActionEvent actionEvent) {
