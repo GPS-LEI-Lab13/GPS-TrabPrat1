@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS Message (
         REFERENCES Channel (id) on delete cascade
 );
 -- Setup -----------------------------------
-insert into User(id,username,password_hash) values(1,'Admin','3fw42nemv0hxxa98e8rn32syomxixtp9259v0mebmrmi91evfbuser');
+insert into User(id,username,password_hash) values(1,'Admin','3fw42nemv0hxxa98e8rn32syomxixtp9259v0mebmrmi91evfb');
 insert into Channel(id,creator_id,name) values(1,1,'General');
 -- Triggers --------------------------------
 drop trigger if exists generalAddition;
