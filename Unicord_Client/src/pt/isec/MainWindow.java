@@ -190,7 +190,9 @@ public class MainWindow implements Initializable {
         Label dateLabel = new Label(app.getFormattedDate(message.date));
         Label usernameLabel = new Label(message.senderUsername + ":");
         Label label = new Label(message.content);
+        label.setWrapText(true);
         usernameLabel.setTextFill(app.getUser().id != message.senderId ? Color.web("#7D82B8") : Color.web("#B8B37D"));
+
         box.getChildren().addAll(dateLabel, usernameLabel, label);
         box.setAlignment(Pos.BASELINE_LEFT);
 

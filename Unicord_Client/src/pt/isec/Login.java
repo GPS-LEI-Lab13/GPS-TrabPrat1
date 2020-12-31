@@ -30,8 +30,10 @@ public class Login {
         String password = passwordTextField.getText();
         App app = App.getApp();
 
-        boolean followRules = Validator.checkUserPasswordRules(password);
-        if (followRules){
+
+        if (username.isBlank() || password.isBlank()) {
+            app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, "You must enter your credentials");
+        } else {
             try {
                 User user = new User(username, Utils.hashString(password));
                 Command command = app.sendAndReceive(Constants.LOGIN, user);
@@ -44,8 +46,6 @@ public class Login {
             } catch (IOException | InterruptedException | NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
-        }else{
-            app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, "Username and/or password incorrect!");
         }
     }
 
