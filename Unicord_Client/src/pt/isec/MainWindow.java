@@ -252,13 +252,6 @@ public class MainWindow implements Initializable {
             Thread td = new Thread(() -> {
                 try {
                     app.sendCommand(Constants.NEW_MESSAGE, message);
-                    //Command command = app.sendAndReceive(Constants.NEW_MESSAGE, message);
-					/*if (command.protocol.equals(Constants.SUCCESS)) {
-						message.senderUsername = app.getUser().username;
-						messagesFilesVBox.getChildren().add(insertLine(message));
-					} else {
-						System.out.println("?¿Erro a enviar mensagem?¿");
-					}*/
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
