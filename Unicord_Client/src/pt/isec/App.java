@@ -6,17 +6,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
-import pt.isec.Channel;
-import pt.isec.MainReceiver;
-import pt.isec.User;
 
 import java.io.*;
-import java.net.InetAddress;
 import java.net.Socket;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -129,7 +123,6 @@ public class App extends Application {
 				return command;
 			}
 		}
-		
 	}
 	
 	public List<Channel> getChannels() {
@@ -226,7 +219,7 @@ public class App extends Application {
 		Alert alert = new Alert(type);
 		alert.setTitle(title);
 		alert.setHeaderText(message);
-		
+
 		alert.showAndWait();
 	}
 	
@@ -234,8 +227,6 @@ public class App extends Application {
 		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 		alert.setTitle(title);
 		alert.setContentText(message);
-		//ButtonType buttonTypeDelete = new ButtonType("Delete");
-		//ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
 		Optional<ButtonType> result = alert.showAndWait();
 		System.out.println(result);
 		if (result.isEmpty()) return false;

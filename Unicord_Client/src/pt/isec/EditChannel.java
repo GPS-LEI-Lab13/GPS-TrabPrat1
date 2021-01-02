@@ -11,7 +11,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -26,8 +25,6 @@ public class EditChannel implements Initializable {
 	public TextField channelNameTextField;
 	private ChannelEditor oldChannelEditor;
 	private ChannelEditor newChannelEditor;
-	private ImageView removeImage;
-	private ImageView addImage;
 	
 	
 	@Override
@@ -57,7 +54,6 @@ public class EditChannel implements Initializable {
 		for (var user : users) {
 			HBox hBox = new HBox();
 			Label label = new Label(user);
-			//ImageView imageView = isIn ? removeImage : addImage;
 			ImageView imageView = clickMaister(isIn);
 			
 			hBox.getChildren().addAll(label, imageView);
@@ -81,13 +77,12 @@ public class EditChannel implements Initializable {
 				String thisUsername = thisLabel.getText();
 				oldChannelEditor.usersIn.removeIf(username -> username.equals(thisUsername));
 				newChannelEditor.usersIn.removeIf(username -> username.equals(thisUsername));
-				
+
 				membersVbox.getChildren().remove(box);
 				inviteVbox.getChildren().add(box);
-				
-				
+
 				newChannelEditor.usersOut.add(thisUsername);
-				
+
 				box.getChildren().remove(1);
 				box.getChildren().add(clickMaister(false));
 			});
@@ -99,13 +94,12 @@ public class EditChannel implements Initializable {
 				String thisUsername = thisLabel.getText();
 				oldChannelEditor.usersIn.removeIf(username -> username.equals(thisUsername));
 				newChannelEditor.usersIn.removeIf(username -> username.equals(thisUsername));
-				
+
 				inviteVbox.getChildren().remove(box);
 				membersVbox.getChildren().add(box);
-				
-				
+
 				newChannelEditor.usersIn.add(thisUsername);
-				
+
 				box.getChildren().remove(1);
 				box.getChildren().add(clickMaister(true));
 			});
@@ -116,18 +110,18 @@ public class EditChannel implements Initializable {
 	public void applyButton(ActionEvent actionEvent) {
 		App app = App.getApp();
 		String channelName = channelNameTextField.getText();
-		
+
 		if (channelName.isBlank() || channelName.equals(oldChannelEditor.name)) {
 			newChannelEditor.name = null;
 		}else{
 			newChannelEditor.name = channelName;
 		}
-		
+
 		if (newChannelEditor.usersIn != null && newChannelEditor.usersIn.size() == 0)
 			newChannelEditor.usersIn = null;
 		if (newChannelEditor.usersOut != null && newChannelEditor.usersOut.size() == 0)
 			newChannelEditor.usersOut = null;
-		
+
 		try {
 			Command command = app.sendAndReceive(Constants.EDIT_CHANNEL, newChannelEditor);
 			if (command.protocol.equals(Constants.ERROR)) {

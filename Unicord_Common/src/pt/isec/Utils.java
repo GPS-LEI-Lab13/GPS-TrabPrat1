@@ -27,19 +27,6 @@ public class Utils {
 			file.mkdir();
 	}
 
-	/*public static void createFileDirectories(File file) {
-		createDirectories(file);
-	}
-
-	private static void createDirectories(File directory) {
-		if (directory.exists()) return;
-		File parent = directory.getParentFile();
-		if (parent != null)
-			createDirectories(parent);
-		
-		directory.mkdir();
-	}*/
-
 	public static String addTimestampFileName(String fileName) {
 		String utcTimeString = "" + new Date().getTime();
 		int timeLength = utcTimeString.length() - 8;
