@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.MainWindow">
+   <children>
+      <MenuBar maxWidth="1280.0" minWidth="1280.0" prefWidth="1280.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="Channel">
+            <items>
+              <MenuItem fx:id="createMenuItem" mnemonicParsing="false" onAction="#createMenuItem" text="Create" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" onAction="#aboutMenuItem" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <HBox prefHeight="695.0" prefWidth="1280.0">
+         <children>
+            <VBox prefHeight="695.0" prefWidth="240.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Channels">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <ScrollPane fx:id="channelsScrollPane" maxHeight="676.0" maxWidth="240.0" minHeight="676.0" minWidth="240.0" prefHeight="676.0" prefWidth="240.0" VBox.vgrow="ALWAYS">
+                     <content>
+                        <VBox fx:id="channelsVBox" prefWidth="200.0">
+                           <padding>
+                              <Insets left="20.0" right="20.0" />
+                           </padding></VBox>
+                     </content>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </ScrollPane>
+               </children>
+            </VBox>
+            <VBox prefHeight="695.0" prefWidth="1040.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Messages and Files">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Text>
+                  <ScrollPane fx:id="messageFileScrollPane" maxHeight="630.0" maxWidth="1040.0" minHeight="630.0" minWidth="1040.0" prefHeight="630.0" prefWidth="1040.0">
+                     <content>
+                        <VBox fx:id="messagesFilesVBox" maxWidth="1000.0" minWidth="1000.0" prefWidth="1000.0">
+                           <padding>
+                              <Insets left="20.0" right="20.0" />
+                           </padding></VBox>
+                     </content>
+                  </ScrollPane>
+                  <HBox alignment="CENTER" prefHeight="109.0" prefWidth="1040.0">
+                     <children>
+                        <TextField fx:id="messageTextField" maxWidth="975.0" minWidth="975.0" onKeyPressed="#onEnterPressed" />
+                        <Button fx:id="sendBtn" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#SendButton">
+                           <graphic>
+                              <ImageView fx:id="sendIcon" fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../Images/send_icon.jpg" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                        <Button fx:id="fileBtn" maxHeight="25.0" maxWidth="25.0" minHeight="25.0" minWidth="25.0" mnemonicParsing="false" onAction="#SendFileButton">
+                           <graphic>
+                              <ImageView fx:id="fileIcon" fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@../Images/file_icon.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</VBox>
