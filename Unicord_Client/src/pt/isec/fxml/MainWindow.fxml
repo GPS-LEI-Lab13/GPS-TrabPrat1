@@ -44,7 +44,7 @@
                   </Text>
                   <ScrollPane fx:id="channelsScrollPane" maxHeight="676.0" maxWidth="240.0" minHeight="676.0" minWidth="240.0" prefHeight="676.0" prefWidth="240.0" VBox.vgrow="ALWAYS">
                      <content>
-                        <VBox fx:id="channelsVBox" prefWidth="200.0">
+                        <VBox fx:id="channelsVBox" prefHeight="679.0" prefWidth="226.0">
                            <padding>
                               <Insets left="20.0" right="20.0" />
                            </padding></VBox>
@@ -67,7 +67,7 @@
                   </Text>
                   <ScrollPane fx:id="messageFileScrollPane" maxHeight="630.0" maxWidth="1040.0" minHeight="630.0" minWidth="1040.0" prefHeight="630.0" prefWidth="1040.0">
                      <content>
-                        <VBox fx:id="messagesFilesVBox" maxWidth="1000.0" minWidth="1000.0" prefWidth="1000.0">
+                        <VBox fx:id="messagesFilesVBox" maxWidth="1029.0" minWidth="1000.0" prefHeight="631.0" prefWidth="1029.0">
                            <padding>
                               <Insets left="20.0" right="20.0" />
                            </padding></VBox>
