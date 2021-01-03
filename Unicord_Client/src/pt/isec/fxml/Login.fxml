@@ -42,17 +42,17 @@
             </HBox>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                <children>
-                  <Button fx:id="registerButton" maxHeight="35.0" maxWidth="100.0" minHeight="35.0" minWidth="100.0" mnemonicParsing="false" onAction="#registerButton" style="-fx-background-color: orange;" text="Register">
+                  <Button fx:id="registerButton" maxHeight="35.0" maxWidth="100.0" minHeight="35.0" minWidth="100.0" mnemonicParsing="false" onAction="#registerButton" style="-fx-background-color: orange;" text="Register" textFill="WHITE">
                      <HBox.margin>
                         <Insets right="175.0" />
                      </HBox.margin>
                      <font>
-                        <Font size="16.0" />
+                        <Font name="Lucida Console" size="16.0" />
                      </font>
                   </Button>
-                  <Button fx:id="logInButton" maxHeight="35.0" maxWidth="100.0" minHeight="35.0" minWidth="100.0" mnemonicParsing="false" onAction="#logInButton" style="-fx-background-color: green;" text="Log In">
+                  <Button fx:id="logInButton" maxHeight="35.0" maxWidth="100.0" minHeight="35.0" minWidth="100.0" mnemonicParsing="false" onAction="#logInButton" style="-fx-background-color: green;" text="Log In" textFill="WHITE">
                      <font>
-                        <Font size="16.0" />
+                        <Font name="Lucida Console" size="16.0" />
                      </font>
                   </Button>
                </children>
