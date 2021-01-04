@@ -11,14 +11,16 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -189,11 +191,15 @@ public class MainWindow implements Initializable {
         Label dateLabel = new Label(app.getFormattedDate(message.date));
         Label usernameLabel = new Label(message.senderUsername + ":");
         VBox vBox = new VBox();
-        Label label = new Label(message.content);
+        Label label;
         int yau = (int) Math.ceil(message.content.length() / 100.0);
         for (int i = 0, j = 0; i < yau; i++, j += 101) {
-            label = new Label(message.content.substring(j, j + 100 > message.content.length() ? message.content.length() - 1 : j + 100));
-            vBox.getChildren().add(label);
+                if(message.content.length() < j + 100 ){
+                    label = new Label(message.content.substring(j));
+                }else{
+                    label = new Label(message.content.substring(j, j + 100));
+                }
+                vBox.getChildren().add(label);
         }
         usernameLabel.setTextFill(app.getUser().id != message.senderId ? Color.web("#7D82B8") : Color.web("#B8B37D"));
         box.getChildren().addAll(dateLabel, usernameLabel, vBox);
