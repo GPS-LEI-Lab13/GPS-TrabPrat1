@@ -9,16 +9,15 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-
-<Pane fx:controller="pt.isec.CreateChannel" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pt.isec.CreateChannel">
    <children>
       <VBox alignment="CENTER" prefHeight="150.0" prefWidth="500.0">
          <children>
-            <HBox alignment="CENTER" prefHeight="150.0" prefWidth="500.0">
+            <HBox alignment="CENTER" prefHeight="150.0" prefWidth="500.0" style="-fx-background-color: #b3e5fc;">
                <children>
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Channel name">
                      <font>
-                        <Font size="16.0" />
+                        <Font name="Lucida Console" size="16.0" />
                      </font>
                      <HBox.margin>
                         <Insets left="20.0" />
@@ -29,12 +28,12 @@
                         <Insets left="20.0" />
                      </HBox.margin>
                   </TextField>
-                  <Button fx:id="createButton" mnemonicParsing="false" prefWidth="150.0" text="Create" onAction="#createButton">
+                  <Button fx:id="createButton" mnemonicParsing="false" onAction="#createButton" prefWidth="150.0" style="-fx-background-color: green;" text="Create" textFill="WHITE">
                      <HBox.margin>
                         <Insets left="20.0" right="20.0" />
                      </HBox.margin>
                      <font>
-                        <Font size="14.0" />
+                        <Font name="Lucida Console" size="16.0" />
                      </font>
                   </Button>
                </children>
