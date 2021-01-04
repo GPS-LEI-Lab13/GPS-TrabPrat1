@@ -35,9 +35,9 @@ class ValidatorTest {
 	
 	@Test
 	void checkPasswordMatchUsername() throws SQLException, NoSuchAlgorithmException {
-		assertSame(true, Validator.checkPasswordMatchUsername(new User("Admin", Utils.hashString("random secure password")), database));
 		assertSame(false, Validator.checkPasswordMatchUsername(new User("Admin", Utils.hashString("gwerjiosns")), database));
 		assertSame(false, Validator.checkPasswordMatchUsername(new User("ndfaseio", Utils.hashString("random secure password")), database));
+		assertSame(true, Validator.checkPasswordMatchUsername(new User("Admin", Utils.hashString("random secure password")) , database));
 	}
 	
 }
