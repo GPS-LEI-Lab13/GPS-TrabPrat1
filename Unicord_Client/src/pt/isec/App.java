@@ -28,7 +28,6 @@ import java.util.concurrent.BlockingQueue;
 public class App extends Application {
 
 	public static String serverAddress;
-
 	private static App instance;
 
 	private Socket socket;
@@ -69,14 +68,6 @@ public class App extends Application {
 		mainReceiver.start();
 	}
 
-	public String getFormattedDate(long time) {
-		date.setTime(time);
-		return sDF.format(date);
-	}
-
-	public App() {
-	}
-
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		instance = this;
@@ -97,23 +88,6 @@ public class App extends Application {
 		primaryStage.show();
 	}
 
-	public Parent loadFxml(String fxml) throws IOException {
-		return FXMLLoader.load(getClass().getResource(fxml));
-	}
-
-	public void setWindowRoot(String fxml) throws IOException {
-		scene.setRoot(loadFxml("fxml/" + fxml));
-	}
-
-	public void setWindowRoot(String fxml, double width, double height) throws IOException {
-		setWindowRoot(fxml);
-		scene.getWindow().setWidth(width);
-		scene.getWindow().setHeight(height);
-	}
-	
-	public BlockingQueue<Command> getReceivedObjectQueue() {
-		return mainReceiver.addListener();
-	}
 	
 	public void sendCommand(String protocol, Object obj) throws IOException {
 		Command command = new Command(protocol, obj);
@@ -131,26 +105,6 @@ public class App extends Application {
 				return command;
 			}
 		}
-	}
-	
-	public List<Channel> getChannels() {
-		return channels;
-	}
-	
-	public void setChannels(List<Channel> channels) {
-		this.channels = channels;
-	}
-	
-	public Stage getStage() {
-		return mainStage;
-	}
-	
-	public Channel getSelectedChannel() {
-		return selectedChannel;
-	}
-	
-	public void setSelectedChannel(Channel selectedChannel) {
-		this.selectedChannel = selectedChannel;
 	}
 	
 	public void downloadFile(Message message, File absolutePath) throws IOException, InterruptedException {
@@ -248,4 +202,48 @@ public class App extends Application {
 	public void setUser(User user) {
 		this.user = user;
 	}
+	
+	public List<Channel> getChannels() {
+		return channels;
+	}
+	
+	public void setChannels(List<Channel> channels) {
+		this.channels = channels;
+	}
+	
+	public Stage getStage() {
+		return mainStage;
+	}
+	
+	public Channel getSelectedChannel() {
+		return selectedChannel;
+	}
+	
+	public void setSelectedChannel(Channel selectedChannel) {
+		this.selectedChannel = selectedChannel;
+	}
+	
+	public BlockingQueue<Command> getReceivedObjectQueue() {
+		return mainReceiver.addListener();
+	}
+	
+	public String getFormattedDate(long time) {
+		date.setTime(time);
+		return sDF.format(date);
+	}
+	
+	public Parent loadFxml(String fxml) throws IOException {
+		return FXMLLoader.load(getClass().getResource(fxml));
+	}
+	
+	public void setWindowRoot(String fxml) throws IOException {
+		scene.setRoot(loadFxml("fxml/" + fxml));
+	}
+	
+	public void setWindowRoot(String fxml, double width, double height) throws IOException {
+		setWindowRoot(fxml);
+		scene.getWindow().setWidth(width);
+		scene.getWindow().setHeight(height);
+	}
+	
 }
