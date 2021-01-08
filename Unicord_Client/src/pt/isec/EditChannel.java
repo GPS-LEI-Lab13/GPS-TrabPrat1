@@ -1,3 +1,10 @@
+/*
+ * EditChannel
+ * 
+ * Version 1.2
+ * 
+ * Unicord
+ */
 package pt.isec;
 
 import javafx.event.ActionEvent;
@@ -17,16 +24,17 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class EditChannel implements Initializable {
+
 	public Button applyBtn;
 	public Button deleteBtn;
 	public Button closeBtn;
 	public VBox membersVbox;
 	public VBox inviteVbox;
 	public TextField channelNameTextField;
+
 	private ChannelEditor oldChannelEditor;
 	private ChannelEditor newChannelEditor;
-	
-	
+
 	@Override
 	public void initialize(URL url, ResourceBundle resourceBundle) {
 		App app = App.getApp();
