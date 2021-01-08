@@ -1,3 +1,10 @@
+/*
+ * MainWindow
+ * 
+ * Version 1.2
+ * 
+ * Unicord
+ */
 package pt.isec;
 
 import javafx.application.Platform;
@@ -28,12 +35,13 @@ import java.util.ResourceBundle;
 import java.util.concurrent.BlockingQueue;
 
 public class MainWindow implements Initializable {
+
+    private static App app;
+
     public ScrollPane channelsScrollPane;
     public ScrollPane messageFileScrollPane;
     public VBox channelsVBox;
     public VBox messagesFilesVBox;
-
-    private static App app;
     public TextField messageTextField;
 
     private List<Message> messages = new ArrayList<>();
@@ -126,6 +134,56 @@ public class MainWindow implements Initializable {
             createChannel.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void aboutMenuItem(ActionEvent actionEvent) {
+        App app = App.getApp();
+        app.openMessageDialog(Alert.AlertType.INFORMATION, "About", "Work done by:\n- Dorin Bosii\n- Leandro Fidalgo\n- Pedro Alves\n- Rodrigo Mendes\n- Davide Coelho");
+    }
+
+    public void SendButton(ActionEvent actionEvent) {
+        String messageText = messageTextField.getText();
+        if (messageText.isBlank()) return;
+        if (messageText.length() > 511) {
+            app.openMessageDialog(Alert.AlertType.ERROR, "Max lenght", "Give us a break, try to write less(Max:500)!");
+            return;
+        }
+        messageTextField.setText("");
+        Message message = new Message(0, app.getUser().id, app.getSelectedChannel().id, Message.TYPE_TEXT, messageText, 0, app.getUser().username);
+        try {
+            Thread td = new Thread(() -> {
+                try {
+                    app.sendCommand(Constants.NEW_MESSAGE, message);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            td.setDaemon(true);
+            td.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void SendFileButton(ActionEvent actionEvent) {
+        App app = App.getApp();
+        if (app.getSelectedChannel() == null) {
+            app.openMessageDialog(Alert.AlertType.ERROR, "Error Dialog", "Select a channel to send a file!");
+            return;
+        }
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select the file");
+        File file = fileChooser.showOpenDialog(app.getStage());
+        if (file == null) {
+            return;
+        }
+        app.uploadFile(file);
+    }
+
+    public void onEnterPressed(KeyEvent keyEvent) {
+        if (keyEvent.getCode() == KeyCode.ENTER) {
+            SendButton(null);
         }
     }
 
@@ -246,56 +304,6 @@ public class MainWindow implements Initializable {
             editChannelStage.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    public void aboutMenuItem(ActionEvent actionEvent) {
-        App app = App.getApp();
-        app.openMessageDialog(Alert.AlertType.INFORMATION, "About", "Work done by:\n- Dorin Bosii\n- Leandro Fidalgo\n- Pedro Alves\n- Rodrigo Mendes\n- Davide Coelho");
-    }
-
-    public void SendButton(ActionEvent actionEvent) {
-        String messageText = messageTextField.getText();
-        if (messageText.isBlank()) return;
-        if (messageText.length() > 511) {
-            app.openMessageDialog(Alert.AlertType.ERROR, "Max lenght", "Give us a break, try to write less(Max:500)!");
-            return;
-        }
-        messageTextField.setText("");
-        Message message = new Message(0, app.getUser().id, app.getSelectedChannel().id, Message.TYPE_TEXT, messageText, 0, app.getUser().username);
-        try {
-            Thread td = new Thread(() -> {
-                try {
-                    app.sendCommand(Constants.NEW_MESSAGE, message);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-            td.setDaemon(true);
-            td.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void SendFileButton(ActionEvent actionEvent) {
-        App app = App.getApp();
-        if (app.getSelectedChannel() == null) {
-            app.openMessageDialog(Alert.AlertType.ERROR, "Error Dialog", "Select a channel to send a file!");
-            return;
-        }
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select the file");
-        File file = fileChooser.showOpenDialog(app.getStage());
-        if (file == null) {
-            return;
-        }
-        app.uploadFile(file);
-    }
-
-    public void onEnterPressed(KeyEvent keyEvent) {
-        if (keyEvent.getCode() == KeyCode.ENTER) {
-            SendButton(null);
         }
     }
 }
