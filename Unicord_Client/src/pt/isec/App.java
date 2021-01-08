@@ -1,3 +1,10 @@
+/*
+ * App
+ * 
+ * Version 1.2
+ * 
+ * Unicord
+ */
 package pt.isec;
 
 import javafx.application.Application;
@@ -19,24 +26,42 @@ import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 
 public class App extends Application {
+
+	public static String serverAddress;
+
+	private static App instance;
+
 	private Socket socket;
 	private ObjectOutputStream oOS;
 	private MainReceiver mainReceiver;
 	private User user;
 	private Channel selectedChannel;
 	private List<Channel> channels;
-	
 	private Stage mainStage;
 	private Scene scene;
-	public static String serverAddress;
-	private static App instance;
 	private final SimpleDateFormat sDF = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
 	private final Date date = new Date();
-	
+
+	public static void main(String[] args) {
+		if (args.length != 1) {
+			System.out.println("Invalid arguments: server_address");
+			return;
+		}
+		String serverAddress = args[0];
+		try {
+			System.out.println("Trying to connect");
+			App.serverAddress = serverAddress;
+			launch();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+
 	public static App getApp() {
 		return instance;
 	}
-	
+
 	public void initialize() throws IOException {
 		socket = new Socket(serverAddress, Constants.SERVER_PORT);
 		oOS = new ObjectOutputStream(socket.getOutputStream());
@@ -48,10 +73,10 @@ public class App extends Application {
 		date.setTime(time);
 		return sDF.format(date);
 	}
-	
+
 	public App() {
 	}
-	
+
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		instance = this;
@@ -71,28 +96,11 @@ public class App extends Application {
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
-	
-	
-	public static void main(String[] args) {
-		if (args.length != 1) {
-			System.out.println("Invalid arguments: server_address");
-			return;
-		}
-		String serverAddress = args[0];
-		try {
-			System.out.println("Trying to connect");
-			App.serverAddress = serverAddress;
-			launch();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
+
 	public Parent loadFxml(String fxml) throws IOException {
 		return FXMLLoader.load(getClass().getResource(fxml));
 	}
-	
+
 	public void setWindowRoot(String fxml) throws IOException {
 		scene.setRoot(loadFxml("fxml/" + fxml));
 	}
