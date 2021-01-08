@@ -1,3 +1,10 @@
+/*
+ * Register
+ * 
+ * Version 1.2
+ * 
+ * Unicord
+ */
 package pt.isec;
 
 import javafx.event.ActionEvent;
@@ -15,7 +22,6 @@ public class Register {
     public TextField confirmPasswordTextField;
     public Button cancelButton;
     public Button registerButton;
-
 
     public void cancelButton(ActionEvent actionEvent) {
         try {
