@@ -1,5 +1,11 @@
+/*
+ * Main
+ * 
+ * Version 1.2
+ * 
+ * Unicord
+ */
 package pt.isec;
-
 
 public class Main {
 
