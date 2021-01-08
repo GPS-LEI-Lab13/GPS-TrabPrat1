@@ -1,10 +1,15 @@
+/*
+ * MainReceiver
+ *
+ * Version 1
+ *
+ * Unicord
+ */
 package pt.isec;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
-import java.net.SocketException;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

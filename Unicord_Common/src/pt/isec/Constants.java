@@ -1,3 +1,10 @@
+/*
+ * Constants
+ *
+ * Version 1
+ *
+ * Unicord
+ */
 package pt.isec;
 
 import java.io.File;

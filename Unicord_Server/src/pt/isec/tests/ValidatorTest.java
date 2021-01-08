@@ -1,3 +1,10 @@
+/*
+ * ValidatorTest
+ *
+ * Version 1
+ *
+ * Unicord
+ */
 package pt.isec.tests;
 
 import org.junit.jupiter.api.Test;
@@ -12,8 +19,7 @@ class ValidatorTest {
 	
 	Database database;
 	
-	public ValidatorTest() throws SQLException, NoSuchAlgorithmException {
-		System.out.println(Utils.hashString("random secure password"));
+	public ValidatorTest() throws SQLException {
 		this.database = new Database(Constants.getDatabaseConnectionString("localhost"),
 				Constants.DATABASE_USERNAME, Constants.DATABASE_PASSWORD);
 	}
