@@ -1,3 +1,10 @@
+/*
+ * MainReceiver
+ * 
+ * Version 1.2
+ * 
+ * Unicord
+ */
 package pt.isec;
 
 import javafx.application.Platform;
