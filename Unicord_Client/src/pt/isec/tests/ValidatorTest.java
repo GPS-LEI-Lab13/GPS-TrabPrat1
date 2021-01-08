@@ -1,3 +1,10 @@
+/*
+ * ValidatorTest
+ * 
+ * Version 1.2
+ * 
+ * Unicord
+ */
 package pt.isec.tests;
 
 import org.junit.jupiter.api.Test;
