@@ -1,8 +1,14 @@
+/*
+ * FileBlock
+ *
+ * Version 1
+ *
+ * Unicord
+ */
 package pt.isec;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Arrays;
 
 public class FileBlock implements Serializable {
 	

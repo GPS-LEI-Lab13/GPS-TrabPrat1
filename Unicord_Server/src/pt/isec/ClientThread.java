@@ -1,3 +1,10 @@
+/*
+ * ClientThread
+ *
+ * Version 1
+ *
+ * Unicord
+ */
 package pt.isec;
 
 import java.io.FileInputStream;
@@ -23,6 +30,15 @@ public class ClientThread extends Thread {
 	public ClientThread(Socket socket, MainServer mainServer) {
 		this.socket = socket;
 		this.app = mainServer;
+	}
+	
+	public void sendCommand(String protocol, Object extras) throws IOException {
+		Command obj = new Command(protocol, extras);
+		oos.writeUnshared(obj);
+		if (!(extras instanceof FileBlock)) {
+			if (user != null)
+				System.out.println(user.username + ": " + obj);
+		}
 	}
 	
 	@Override
@@ -293,19 +309,10 @@ public class ClientThread extends Thread {
 		sendCommand(Constants.EDIT_CHANNEL, channelByID);
 	}
 	
-	public void sendCommand(String protocol, Object extras) throws IOException {
-		Command obj = new Command(protocol, extras);
-		oos.writeUnshared(obj);
-		if (!(extras instanceof FileBlock)) {
-			if (user != null)
-				System.out.println(user.username + ": " + obj);
-		}
-	}
-
 	public User getUser() {
 		return this.user;
 	}
-
+	
 	public int getCurrentChannel() {
 		return this.currentChannel;
 	}

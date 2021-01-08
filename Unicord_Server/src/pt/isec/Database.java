@@ -1,3 +1,10 @@
+/*
+ * Database
+ *
+ * Version 1
+ *
+ * Unicord
+ */
 package pt.isec;
 
 import java.sql.*;
@@ -6,10 +13,10 @@ import java.util.List;
 
 public class Database {
 	
-	private final Connection connection;
 	public final Messages Message;
 	public final Channels Channel;
 	public final Users User;
+	private final Connection connection;
 	
 	public Database(String host, String user, String password) throws SQLException {
 		connection = DriverManager.getConnection(host, user, password);
@@ -31,20 +38,6 @@ public class Database {
 			PreparedStatement statement = connection.prepareStatement(sql);
 			statement.setInt(1, channelId);
 			return parse(statement.executeQuery());
-		}
-		
-		private ArrayList<Message> parse(ResultSet result) throws SQLException {
-			ArrayList<Message> list = new ArrayList<>();
-			while (result.next()) {
-				list.add(new Message(result.getInt("id"),
-						result.getInt("sender_id"),
-						result.getInt("channel_id"),
-						result.getString("type"),
-						result.getString("content"),
-						result.getTimestamp("moment_sent").getTime(),
-						result.getString("sender_username")));
-			}
-			return list;
 		}
 		
 		public boolean createMessage(Message message) throws SQLException {
@@ -81,6 +74,20 @@ public class Database {
 			if (!result.next()) return -1;
 			return result.getInt(1);
 		}
+		
+		private ArrayList<Message> parse(ResultSet result) throws SQLException {
+			ArrayList<Message> list = new ArrayList<>();
+			while (result.next()) {
+				list.add(new Message(result.getInt("id"),
+						result.getInt("sender_id"),
+						result.getInt("channel_id"),
+						result.getString("type"),
+						result.getString("content"),
+						result.getTimestamp("moment_sent").getTime(),
+						result.getString("sender_username")));
+			}
+			return list;
+		}
 	}
 	
 	public class Channels {
@@ -89,16 +96,6 @@ public class Database {
 					"from channel ";
 			PreparedStatement statement = connection.prepareStatement(sql);
 			return parse(statement.executeQuery());
-		}
-		
-		private ArrayList<Channel> parse(ResultSet result) throws SQLException {
-			ArrayList<Channel> list = new ArrayList<>();
-			while (result.next()) {
-				list.add(new Channel(result.getInt("id"),
-						result.getInt("creator_id"),
-						result.getString("name")));
-			}
-			return list;
 		}
 		
 		public ArrayList<Channel> getUserChannels(int userId) throws SQLException {
@@ -205,6 +202,16 @@ public class Database {
 			if (!result.next()) return -1;
 			return result.getInt(1);
 		}
+		
+		private ArrayList<Channel> parse(ResultSet result) throws SQLException {
+			ArrayList<Channel> list = new ArrayList<>();
+			while (result.next()) {
+				list.add(new Channel(result.getInt("id"),
+						result.getInt("creator_id"),
+						result.getString("name")));
+			}
+			return list;
+		}
 	}
 	
 	public class Users {
@@ -212,14 +219,6 @@ public class Database {
 			String sql = "select id, username from user ";
 			PreparedStatement statement = connection.prepareStatement(sql);
 			return parse(statement.executeQuery());
-		}
-		
-		public ArrayList<User> parse(ResultSet result) throws SQLException {
-			ArrayList<User> list = new ArrayList<>();
-			while (result.next()) {
-				list.add(new User(result.getInt("id"), result.getString("username")));
-			}
-			return list;
 		}
 		
 		public boolean createUser(User user) throws SQLException {
@@ -275,6 +274,14 @@ public class Database {
 			ResultSet result = statement.executeQuery();
 			if (!result.next()) return false;
 			return result.getString(1).equals(password);
+		}
+		
+		private ArrayList<User> parse(ResultSet result) throws SQLException {
+			ArrayList<User> list = new ArrayList<>();
+			while (result.next()) {
+				list.add(new User(result.getInt("id"), result.getString("username")));
+			}
+			return list;
 		}
 	}
 }

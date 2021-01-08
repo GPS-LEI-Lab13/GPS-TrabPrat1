@@ -1,3 +1,10 @@
+/*
+ * MainServer
+ *
+ * Version 1
+ *
+ * Unicord
+ */
 package pt.isec;
 
 import java.io.IOException;
@@ -8,15 +15,16 @@ import java.util.List;
 
 public class MainServer extends Thread {
 	
-	private final ServerSocket serverSocket;
-	public final List<ClientThread> clients;
-	public final Database database;
-	
 	private static MainServer instance;
 	
 	public static MainServer getInstance() {
 		return instance;
 	}
+	
+	public final List<ClientThread> clients;
+	public final Database database;
+	private final ServerSocket serverSocket;
+	
 	
 	public MainServer(Database database, int serverPort) throws Exception {
 		this.database = database;
@@ -50,7 +58,7 @@ public class MainServer extends Thread {
 			client.sendCommand(protocol, extras);
 		}
 	}
-
+	
 	public void sendToUser(int userId, String protocol, Object extras) throws IOException {
 		for (ClientThread u : clients) {
 			if (u.isLoggedIn() && u.getUser().id == userId) {
@@ -59,7 +67,7 @@ public class MainServer extends Thread {
 			}
 		}
 	}
-
+	
 	public void sendToChannelUsers(int channelId, String protocol, Object extras) throws IOException {
 		for (ClientThread u : clients) {
 			if (u.isLoggedIn() && u.getCurrentChannel() == channelId) {
@@ -67,7 +75,7 @@ public class MainServer extends Thread {
 			}
 		}
 	}
-
+	
 	public void shutdown() {
 		try {
 			sendToAll(Constants.SERVER_SHUTDOWN, null);
@@ -76,7 +84,7 @@ public class MainServer extends Thread {
 		}
 	}
 	
-	public void removeClient(ClientThread client){
+	public void removeClient(ClientThread client) {
 		clients.remove(client);
 	}
 }

@@ -1,3 +1,10 @@
+/*
+ * DatabaseTest
+ *
+ * Version 1
+ *
+ * Unicord
+ */
 package pt.isec.tests;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
@@ -7,13 +14,13 @@ import pt.isec.*;
 import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class DatabaseTest {
 	
-	Database database;
+	private Database database;
 	
 	public DatabaseTest() throws SQLException {
 		this.database = new Database(
@@ -76,7 +83,7 @@ class DatabaseTest {
 		
 		assertSame(true, database.Channel.addUser(user.id, channel.id));
 		
-		ArrayList<Channel> userChannels = database.Channel.getUserChannels(user.id);
+		List<Channel> userChannels = database.Channel.getUserChannels(user.id);
 		
 		assertSame(2, userChannels.size());
 		assertSame(true, database.Channel.removeUser(user.id, channel.id));
@@ -143,14 +150,14 @@ class DatabaseTest {
 	}
 	
 	// Helpers
-	void deleteUser(int id) throws SQLException {
+	private void deleteUser(int id) throws SQLException {
 		String sql = "delete from user where id = ? ";
 		PreparedStatement statement = database.getConnection().prepareStatement(sql);
 		statement.setInt(1, id);
 		assertSame(1, statement.executeUpdate());
 	}
 	
-	void deleteMessage(int messageId) throws SQLException {
+	private void deleteMessage(int messageId) throws SQLException {
 		String sql = "delete from message where id = ? ";
 		PreparedStatement statement = database.getConnection().prepareStatement(sql);
 		statement.setInt(1, messageId);
