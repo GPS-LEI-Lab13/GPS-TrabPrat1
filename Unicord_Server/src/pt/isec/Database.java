@@ -163,20 +163,30 @@ public class Database {
 			return statement.executeUpdate() == 1;
 		}
 		
-		public boolean addUser(int userId, int channelId) throws SQLException {
-			String sql = "insert into channel_user(channel_id, user_id) values(?, ?) ";
-			PreparedStatement statement = connection.prepareStatement(sql);
-			statement.setInt(1, channelId);
-			statement.setInt(2, userId);
-			return statement.executeUpdate() == 1;
+		public boolean addUser(int userId, int channelId) {
+			try {
+				String sql = "insert into channel_user(channel_id, user_id) values(?, ?) ";
+				PreparedStatement statement = connection.prepareStatement(sql);
+				statement.setInt(1, channelId);
+				statement.setInt(2, userId);
+				return statement.executeUpdate() == 1;
+			} catch (SQLException throwables) {
+				throwables.printStackTrace();
+			}
+			return false;
 		}
 		
-		public boolean removeUser(int userId, int channelId) throws SQLException {
-			String sql = "delete from channel_user where channel_id = ? and user_id = ? ";
-			PreparedStatement statement = connection.prepareStatement(sql);
-			statement.setInt(1, channelId);
-			statement.setInt(2, userId);
-			return statement.executeUpdate() == 1;
+		public boolean removeUser(int userId, int channelId) {
+			try {
+				String sql = "delete from channel_user where channel_id = ? and user_id = ? ";
+				PreparedStatement statement = connection.prepareStatement(sql);
+				statement.setInt(1, channelId);
+				statement.setInt(2, userId);
+				return statement.executeUpdate() == 1;
+			} catch (SQLException throwables) {
+				throwables.printStackTrace();
+			}
+			return false;
 		}
 		
 		public Channel getByID(int id) throws SQLException {

@@ -287,22 +287,18 @@ public class ClientThread extends Thread {
 		if (channelChanges.usersIn != null) {
 			for (var username : channelChanges.usersIn) {
 				User user = app.database.User.getByUsername(username);
-				if (!app.database.Channel.addUser(user.id, channel.id)) {
-					sendCommand(Constants.ERROR, "Something went wrong - members invited");
-					return;
+				if (app.database.Channel.addUser(user.id, channel.id)) {
+					app.sendToUser(user.id, Constants.NEW_CHANNEL, channel);
 				}
-				app.sendToUser(user.id, Constants.NEW_CHANNEL, channel);
 			}
 		}
 		if (channelChanges.usersOut != null) {
 			for (var username : channelChanges.usersOut) {
 				User user = app.database.User.getByUsername(username);
 				
-				if (!app.database.Channel.removeUser(user.id, channel.id)) {
-					sendCommand(Constants.ERROR, "Something went wrong -  members removed");
-					return;
+				if (app.database.Channel.removeUser(user.id, channel.id)) {
+					app.sendToUser(user.id, Constants.DELETE_CHANNEL, channel);
 				}
-				app.sendToUser(user.id, Constants.DELETE_CHANNEL, channel);
 			}
 		}
 		sendCommand(Constants.SUCCESS, null);
