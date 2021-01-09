@@ -1,8 +1,8 @@
 /*
  * EditChannel
- * 
+ *
  * Version 1.2
- * 
+ *
  * Unicord
  */
 package pt.isec;
@@ -24,17 +24,17 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class EditChannel implements Initializable {
-
+	
 	public Button applyBtn;
 	public Button deleteBtn;
 	public Button closeBtn;
 	public VBox membersVbox;
 	public VBox inviteVbox;
 	public TextField channelNameTextField;
-
+	
 	private ChannelEditor oldChannelEditor;
 	private ChannelEditor newChannelEditor;
-
+	
 	@Override
 	public void initialize(URL url, ResourceBundle resourceBundle) {
 		App app = App.getApp();
@@ -85,12 +85,12 @@ public class EditChannel implements Initializable {
 				String thisUsername = thisLabel.getText();
 				oldChannelEditor.usersIn.removeIf(username -> username.equals(thisUsername));
 				newChannelEditor.usersIn.removeIf(username -> username.equals(thisUsername));
-
+				
 				membersVbox.getChildren().remove(box);
 				inviteVbox.getChildren().add(box);
-
+				
 				newChannelEditor.usersOut.add(thisUsername);
-
+				
 				box.getChildren().remove(1);
 				box.getChildren().add(clickMaister(false));
 			});
@@ -102,12 +102,12 @@ public class EditChannel implements Initializable {
 				String thisUsername = thisLabel.getText();
 				oldChannelEditor.usersIn.removeIf(username -> username.equals(thisUsername));
 				newChannelEditor.usersIn.removeIf(username -> username.equals(thisUsername));
-
+				
 				inviteVbox.getChildren().remove(box);
 				membersVbox.getChildren().add(box);
-
+				
 				newChannelEditor.usersIn.add(thisUsername);
-
+				
 				box.getChildren().remove(1);
 				box.getChildren().add(clickMaister(true));
 			});
@@ -118,22 +118,28 @@ public class EditChannel implements Initializable {
 	public void applyButton(ActionEvent actionEvent) {
 		App app = App.getApp();
 		String channelName = channelNameTextField.getText();
-
+		
+		ChannelEditor temp = new ChannelEditor(oldChannelEditor.channelId);
+		temp.usersIn = newChannelEditor.usersIn;
+		temp.usersOut = newChannelEditor.usersOut;
+		temp.name = channelName;
+		
 		if (channelName.isBlank() || channelName.equals(oldChannelEditor.name)) {
 			newChannelEditor.name = null;
-		}else{
+		} else {
 			newChannelEditor.name = channelName;
 		}
-
+		
 		if (newChannelEditor.usersIn != null && newChannelEditor.usersIn.size() == 0)
 			newChannelEditor.usersIn = null;
 		if (newChannelEditor.usersOut != null && newChannelEditor.usersOut.size() == 0)
 			newChannelEditor.usersOut = null;
-
+		
 		try {
 			Command command = app.sendAndReceive(Constants.EDIT_CHANNEL, newChannelEditor);
 			if (command.protocol.equals(Constants.ERROR)) {
 				app.openMessageDialog(Alert.AlertType.ERROR, Constants.ERROR, (String) command.extras);
+				newChannelEditor = temp;
 			} else {
 				closeButton(null);
 			}

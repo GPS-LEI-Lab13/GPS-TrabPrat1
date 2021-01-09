@@ -42,11 +42,11 @@ public class Register {
             return;
         }
         if (!Validator.checkUserPasswordRules(password)) {
-            app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, "Password need a upper letter, a small letter, a special character and a minimum of 8 characters and a maximum of 25!");
+            app.openMessageDialog(Alert.AlertType.ERROR,Constants.ERROR, "The password needs at least one uppercase letter, one lowercase \nletter, one special character and be between 8 and 25 characters!");
             return;
         }
         if (!password.equals(confirmPassword)) {
-            app.openMessageDialog(Alert.AlertType.ERROR, Constants.ERROR, "Password must be the same");
+            app.openMessageDialog(Alert.AlertType.ERROR, Constants.ERROR, "passwords must be the same");
             return;
         }
         try {

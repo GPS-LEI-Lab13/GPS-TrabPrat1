@@ -274,7 +274,12 @@ public class ClientThread extends Thread {
 		
 		if (channelChanges.name != null) {
 			channel.name = channelChanges.name;
-			if (!app.database.Channel.editChannel(channel)) {
+			if (Validator.checkChannelAvailability(channel.name, app.database)) {
+				if (!app.database.Channel.editChannel(channel)) {
+					sendCommand(Constants.ERROR, "Something went wrong - channel name");
+					return;
+				}
+			} else {
 				sendCommand(Constants.ERROR, "Name already in use");
 				return;
 			}
@@ -283,7 +288,7 @@ public class ClientThread extends Thread {
 			for (var username : channelChanges.usersIn) {
 				User user = app.database.User.getByUsername(username);
 				if (!app.database.Channel.addUser(user.id, channel.id)) {
-					sendCommand(Constants.ERROR, "Something went wrong");
+					sendCommand(Constants.ERROR, "Something went wrong - members invited");
 					return;
 				}
 				app.sendToUser(user.id, Constants.NEW_CHANNEL, channel);
@@ -292,9 +297,9 @@ public class ClientThread extends Thread {
 		if (channelChanges.usersOut != null) {
 			for (var username : channelChanges.usersOut) {
 				User user = app.database.User.getByUsername(username);
-
+				
 				if (!app.database.Channel.removeUser(user.id, channel.id)) {
-					sendCommand(Constants.ERROR, "Something went wrong");
+					sendCommand(Constants.ERROR, "Something went wrong -  members removed");
 					return;
 				}
 				app.sendToUser(user.id, Constants.DELETE_CHANNEL, channel);
@@ -304,7 +309,7 @@ public class ClientThread extends Thread {
 		List<User> users = app.database.Channel.getChannelUsers(channelChanges.channelId);
 		Channel channelByID = app.database.Channel.getByID(channelChanges.channelId);
 		for (User u : users) {
-			app.sendToUser(u.id ,Constants.EDIT_CHANNEL, channelByID);
+			app.sendToUser(u.id, Constants.EDIT_CHANNEL, channelByID);
 		}
 		sendCommand(Constants.EDIT_CHANNEL, channelByID);
 	}
